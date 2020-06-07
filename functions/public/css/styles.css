@@ -1,0 +1,52 @@
+body{
+  padding-top: : 60px;
+  padding-bottom: 40px;
+  margin:0;
+}
+
+.fixed-header, .fixed-footer{
+  width: 100%;
+  height: 8vh;
+  position: fixed;
+  background: #033766;
+  padding: 10px 0;
+  color: #FFF;
+}
+.fixed-header{
+  top: 0;
+  text-align: center;
+}
+.fixed-footer{
+  bottom: 0;
+  height: 4vh;
+}
+
+.content{
+  width: 80%;
+  background: #EEEEEE;
+  margin: 0 auto;
+  padding-top: 12vh;
+  min-height: 100%;
+
+}
+.container{
+  width: 90%;
+  margin: 0 auto;
+  padding:10px;
+}
+.container h1{
+  text-align: center;
+}
+
+.container p{
+  text-align: center;
+}
+
+input {
+  text-align: center;
+}
+
+.button-wrapper{
+  text-align: center;
+  padding-top: 3vh;
+}

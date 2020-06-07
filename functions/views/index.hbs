@@ -1,0 +1,84 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+      var valid = new RegExp('[A-Z]{4}');
+      $('#joinid').on('input', function() {
+        if(valid.test(this.value.toUpperCase()))
+        {
+          $('#joingame').prop('disabled', false);
+        }
+        else
+        {
+          $('#joingame').prop('disabled', true);
+        }
+      });
+
+     $('#joingame').click(function(){
+       $(location).attr('href', "/game/"+$('#joinid').val().toUpperCase());
+     });
+    });
+    </script>
+
+  </head>
+  <body>
+    <div class=fixed-header>
+      <h1>Simply Connect</h1>
+    </div>
+    <div class=content>
+      <div class=container>
+        <h1>An Online <i>Only Connect</i> Clone</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam dictum ex eu elit viverra molestie. Nunc eu faucibus lectus. Donec elementum eros ornare consequat consequat. Ut fermentum, tellus vel eleifend commodo, orci lectus consequat magna, eget congue velit ante eu arcu. Ut vitae nibh id eros faucibus tincidunt. Maecenas erat augue, venenatis eget pulvinar vel, lobortis eget neque. Aliquam nibh ante, auctor vitae pulvinar sit amet, dictum vel ipsum.</p>
+      </div>
+
+      <div class=container>
+        <div class=button-wrapper>
+          <form action="/newgame" method="GET">
+            <input class="btn btn-primary btn-block" type="submit" value="New Game">
+          </form>
+        </div>
+        <div class=button-wrapper>
+          <input id="joinid" class="form-control input-lg joinbox" maxlength="4" style="text-transform:uppercase;" type="text" placeholder="XXXX">
+          <input id="joingame" class="btn btn-primary btn-block" type="submit" value="Join Game" disabled="true">
+        </div>
+      </div>
+      <!-- <form action="/insert_data" method="POST">
+        <fieldset>
+          <legend>New Question</legend>
+
+          First Clue:<br>
+          <input type="text" name = "clue1">
+          <br>
+
+          First Clue:<br>
+          <input type="text" name = "clue2">
+
+          <br>
+          First Clue:<br>
+          <input type="text" name = "clue3">
+          <br>
+          First Clue:<br>
+          <input type="text" name = "clue4">
+
+          <br><br>
+          <input type="submit" value="Submit">
+        </fieldset>
+      </form> -->
+    </div>
+    <div class=fixed-footer>
+    </div>
+  <body>
+<html>
