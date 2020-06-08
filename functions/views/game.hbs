@@ -1,6 +1,22 @@
 <html>
   <head>
-    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="/__/firebase/7.15.0/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+         https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="/__/firebase/7.15.0/firebase-analytics.js"></script>
+    <script src="/__/firebase/7.15.0/firebase-auth.js"></script>
+    <script src="/__/firebase/7.15.0/firebase-firestore.js"></script>
+
+    <script src="/__/firebase/init.js"></script>
+
+    <script src="scripts/firebase_client.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script type="text/Javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -8,20 +24,48 @@
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+
   </head>
   <body>
     <div class=fixed-header>
       <h1>Simply Connect</h1>
     </div>
-    <div class=content>
+    <div class=content id="pregame">
       <div class=container>
-        <h1>Game ID: {{gameCode}}</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam dictum ex eu elit viverra molestie. Nunc eu faucibus lectus. Donec elementum eros ornare consequat consequat. Ut fermentum, tellus vel eleifend commodo, orci lectus consequat magna, eget congue velit ante eu arcu. Ut vitae nibh id eros faucibus tincidunt. Maecenas erat augue, venenatis eget pulvinar vel, lobortis eget neque. Aliquam nibh ante, auctor vitae pulvinar sit amet, dictum vel ipsum.</p>
-        <p>Your User ID is: {{uid}}</p>
+        <h1 id="head">Game ID: {{gameCode}}</h1>
+        <p>Your Display Name is: </p>
+        <b><p id=dname>&nbsp;</p></b>
       </div>
+      <div class="container">
+        <div class="form-inner">
+          <div class="form-group">
+            <input type="text" id="newDName" class="form-control"placeholder="Display Name" maxlength="16">
+          </div>
+          <div class="form-group">
+            <button id="changeDName" class="btn btn-default" disabled="true">Update</button>
+          </div>
+        </div>
+        <div class="form-inner">
+          <button id="readyUp" class="btn btn-default" disabled="true">Ready!</button>
+        </div>
       </div>
+      <div class="container">
+        <table id=teamsTab>
+          <tr>
+            <th>Team 1</th>
+            <th>Team 2</th>
+          </tr>
+          <tr>
+            <td><button id="joinT1" class="btn btn-default pad" disabled=true>Join</button></td>
+            <td><button id="joinT2" class="btn btn-default pad" disabled=true>Join</button></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class=content id="round1" style='display:none'>
+      ROUND 1
     </div>
     <div class=fixed-footer>
     </div>

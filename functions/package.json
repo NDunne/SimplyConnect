@@ -14,9 +14,12 @@
   "dependencies": {
     "bootstrap": "^4.5.0",
     "consolidate": "^0.15.1",
+    "cookie-parser": "^1.4.5",
     "crypto": "^1.0.1",
     "express": "^4.17.1",
+    "firebase": "^7.15.0",
     "firebase-admin": "^8.10.0",
+    "firebase-auth": "^0.1.2",
     "firebase-functions": "^3.6.1",
     "handlebars": "^4.7.6",
     "url-pattern": "^1.0.3"

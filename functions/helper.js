@@ -1,15 +1,11 @@
 
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-const admin = require('firebase-admin');
-
 module.exports = {
   //Simple retrieve of a collection from the admin DB
-  getFirestore: async function(coll){
-    const firestore_con = await admin.firestore();
-
+  getCollection: async function(coll, db){
     const writeResult =
-    firestore_con.collection(coll).get()
+    db.collection(coll).get()
     .then(snapshot => {
       return snapshot.docs.map(doc => {
         return doc.data();
@@ -51,8 +47,8 @@ module.exports = {
     return newCode;
   },
   //Add new game to firebase backend
-  insertNewGame: function(gameCode) {
-    const writeResult = admin.firestore().collection('Games').add({
+  insertNewGame: function(gameCode, db) {
+    const writeResult = db.collection('Games').add({
       ID: gameCode,
       started: false,
       test: true

@@ -1,6 +1,6 @@
 <html>
   <head>
-    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -11,11 +11,13 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
 
     <script type="text/javascript">
+    var valid = new RegExp('[A-Z]{4}');
+
     $(document).ready(function(){
-      var valid = new RegExp('[A-Z]{4}');
       $('#joinid').on('input', function() {
         if(valid.test(this.value.toUpperCase()))
         {
@@ -30,6 +32,13 @@
      $('#joingame').click(function(){
        $(location).attr('href', "/game/"+$('#joinid').val().toUpperCase());
      });
+    });
+
+    $(window).load(function() {
+      if(valid.test(this.value.toUpperCase()))
+      {
+        $('#joingame').prop('disabled', false);
+      }
     });
     </script>
 
@@ -47,38 +56,39 @@
       <div class=container>
         <div class=button-wrapper>
           <form action="/newgame" method="GET">
-            <input class="btn btn-primary btn-block" type="submit" value="New Game">
+            <input class="btn btn-success btn-block bigText" type="submit" value="New Game">
           </form>
         </div>
         <div class=button-wrapper>
-          <input id="joinid" class="form-control input-lg joinbox" maxlength="4" style="text-transform:uppercase;" type="text" placeholder="XXXX">
-          <input id="joingame" class="btn btn-primary btn-block" type="submit" value="Join Game" disabled="true">
+          <input id="joinid" class="form-control input-lg joinbox bigText" maxlength="4" style="text-transform:uppercase;" type="text" placeholder="XXXX">
+          <input id="joingame" class="btn btn-success btn-block bigText" type="submit" value="Join Game" disabled="true">
         </div>
       </div>
-      <!-- <form action="/insert_data" method="POST">
-        <fieldset>
-          <legend>New Question</legend>
-
-          First Clue:<br>
-          <input type="text" name = "clue1">
-          <br>
-
-          First Clue:<br>
-          <input type="text" name = "clue2">
-
-          <br>
-          First Clue:<br>
-          <input type="text" name = "clue3">
-          <br>
-          First Clue:<br>
-          <input type="text" name = "clue4">
-
-          <br><br>
-          <input type="submit" value="Submit">
-        </fieldset>
-      </form> -->
     </div>
     <div class=fixed-footer>
     </div>
   <body>
 <html>
+
+<!-- <form action="/insert_data" method="POST">
+  <fieldset>
+    <legend>New Question</legend>
+
+    First Clue:<br>
+    <input type="text" name = "clue1">
+    <br>
+
+    First Clue:<br>
+    <input type="text" name = "clue2">
+
+    <br>
+    First Clue:<br>
+    <input type="text" name = "clue3">
+    <br>
+    First Clue:<br>
+    <input type="text" name = "clue4">
+
+    <br><br>
+    <input type="submit" value="Submit">
+  </fieldset>
+</form> -->
