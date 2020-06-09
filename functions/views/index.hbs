@@ -1,47 +1,13 @@
 <html>
   <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
-
-    <script type="text/javascript">
-    var valid = new RegExp('[A-Z]{4}');
-
-    $(document).ready(function(){
-      $('#joinid').on('input', function() {
-        if(valid.test(this.value.toUpperCase()))
-        {
-          $('#joingame').prop('disabled', false);
-        }
-        else
-        {
-          $('#joingame').prop('disabled', true);
-        }
-      });
-
-     $('#joingame').click(function(){
-       $(location).attr('href', "/game/"+$('#joinid').val().toUpperCase());
-     });
-    });
-
-    $(window).load(function() {
-      if(valid.test(this.value.toUpperCase()))
-      {
-        $('#joingame').prop('disabled', false);
-      }
-    });
-    </script>
-
   </head>
   <body>
     <div class=fixed-header>
@@ -55,9 +21,7 @@
 
       <div class=container>
         <div class=button-wrapper>
-          <form action="/newgame" method="GET">
-            <input class="btn btn-success btn-block bigText" type="submit" value="New Game">
-          </form>
+          <input id="newgame" class="btn btn-success btn-block bigText" value="New Game">
         </div>
         <div class=button-wrapper>
           <input id="joinid" class="form-control input-lg joinbox bigText" maxlength="4" style="text-transform:uppercase;" type="text" placeholder="XXXX">
@@ -67,7 +31,57 @@
     </div>
     <div class=fixed-footer>
     </div>
-  <body>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="/__/firebase/7.15.0/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+         https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="/__/firebase/7.15.0/firebase-analytics.js"></script>
+    <script src="/__/firebase/7.15.0/firebase-auth.js"></script>
+    <script src="/__/firebase/7.15.0/firebase-firestore.js"></script>
+
+    <script src="/__/firebase/init.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script src="scripts/helper_client.js"></script>
+
+    <script type="text/javascript">
+
+    var valid = new RegExp('[A-Z]{4}');
+
+    //Database reference
+    let db = firebase.firestore();
+
+    $(document).ready(function(){
+      $('#joinid').on('input', function() {
+        if(valid.test(this.value.toUpperCase()))
+        {
+          $('#joingame').prop('disabled', false);
+        }
+        else
+        {
+          $('#joingame').prop('disabled', true);
+        }
+      });
+
+      $('#joingame').click(function(){
+        $(location).attr('href', "/game/"+$('#joinid').val().toUpperCase());
+      });
+
+      $('#newgame').click(function(){
+        var newGameID = newUniqueCode();
+        console.log(newGameID);
+        insertNewGame(newGameID);
+        $(location).attr('href', "/game/"+newGameID);
+      });
+    });
+    </script>
+  </body>
 <html>
 
 <!-- <form action="/insert_data" method="POST">

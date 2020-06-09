@@ -9,8 +9,6 @@ const app = express();
 const admin = require('../firebase_admin');
 const db = admin.firestore();
 
-const helper = require('../helper.js');
-
 app.engine('hbs',engines.handlebars);
 
 app.set('views','./views');
@@ -19,24 +17,37 @@ app.set('view engine', 'hbs');
 
 app.use(express.static(__dirname + '/../public'));
 
+async function getCodes()
+{
+  var codes = [];
+
+  await db.collection("Games").get()
+    .then(snapshot => {
+      snapshot.forEach(game => {
+        console.log(game.id);
+        codes.push(game.id);
+      });
+    })
+    .catch(err => { console.log('Error', err); });
+
+  return codes;
+}
+
 app.get(/[A-Z]{4}/,async function(req,res) {
-
-  var games = await helper.getCollection('Games',db);
-  var codes = helper.getCodes(games);
-
-  console.log("Found Games: " + codes);
 
   var gameCode = req.url.substring(1);
 
-  console.log("Joining Game: " + gameCode);
+  console.log("Game id: " + gameCode + " requested");
 
-  if (codes.includes(gameCode))
-  {
-    res.render('game', { gameCode: req.url.substring(1) });
-  }
-  else {
-    res.redirect("/");
-  }
+  getCodes().then(function(codes) {
+    if (codes.includes(gameCode))
+    {
+      res.render('game', { gameCode: req.url.substring(1) });
+    }
+    else {
+      res.redirect("/");
+    }
+  });
 });
 
 module.exports = app;

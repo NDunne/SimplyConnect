@@ -9,8 +9,6 @@ var hbs = require('handlebars');
 const admin = require('./firebase_admin');
 const db = admin.firestore();
 
-const helper = require('./helper.js');
-
 const cookieParser = require('cookie-parser');
 
 const app = express();
@@ -53,54 +51,15 @@ async function clearTestData(){
   .then(function() {
     return "Success";
   });
+
 }
 
 app.get('/',async (req,res) => {
   res.render('index');
 });
 
-app.get('/newgame',async (req,res) => {
-  console.log("NEW GAME");
-
-  var result = await helper.getCollection('Games', db);
-
-  var gameCode = helper.newUniqueCode(result);
-  helper.insertNewGame(gameCode, db);
-
-  console.log("CODE:" + gameCode);
-
-  let query = db.collection('Games')
-                .where('ID','==',gameCode);
-  let observer = query.onSnapshot(querySnapshot => {
-                  console.log(`Received query snapshot of size ${querySnapshot.size}`);
-                  if (querySnapshot.size)
-                  {
-                    res.redirect(302, "/game/" + gameCode);
-                  }
-                })
-
-});
-
 app.get('/clearTest',async (req,res) => {
   res.send(clearTestData());
-});
-
-//Route for adding cookie
-app.get('/setuser', (req, res)=>{
-  var users = {
-    id : Date.now(),
-    name : ""
-  };
-
-  res.cookie("userData", users, { maxAge: 60 * 1000, httpOnly: true});
-
-  res.send('user data added to cookie: ' + req.cookies.userData.id);
-});
-
-//Iterate users data from cookie
-app.get('/getuser', (req, res)=>{
-//shows all the cookies
-res.send(req.cookies);
 });
 
 app.use('/game', game);
