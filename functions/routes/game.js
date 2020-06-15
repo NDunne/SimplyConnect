@@ -39,15 +39,16 @@ app.get(/[A-Z]{4}/,async function(req,res) {
 
   console.log("Game id: " + gameCode + " requested");
 
-  getCodes().then(function(codes) {
-    if (codes.includes(gameCode))
-    {
-      res.render('game', { gameCode: req.url.substring(1) });
-    }
-    else {
-      res.redirect("/");
-    }
-  });
+  res.render('game', { gameCode: req.url.substring(1) });
+  //
+  // getCodes().then(function(codes) {
+  //   if (codes.includes(gameCode))
+  //   {
+  //   }
+  //   else {
+  //     res.redirect("/");
+  //   }
+  // });
 });
 
 module.exports = app;

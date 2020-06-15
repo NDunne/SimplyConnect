@@ -1,0 +1,8 @@
+- Limit team size - 5 each
+  - Disallow new players if 10
+  - Disallow team switch if 5
+  - Allow Leave
+
+- Red/Blue teams
+  - Indicate player's teams
+  - Indicate team's turn

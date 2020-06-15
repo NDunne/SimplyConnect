@@ -6,34 +6,175 @@ $(function() {
   //GameID from nodeJS template
   const gameID = $('#head').text().split(" ").pop();
 
-  //Make changes to firestore
-  function updateFirestore(uid, dname, team=1, ready=0)
-  {
-    console.log("updating record: " + uid + "\nto:" + {
-      DisplayName: dname,
-      Game: gameID,
-      Team: team,
-      Ready: ready
-    });
+  var last_doc = {};
+  var loggedIn = false;
+  var team = 0;
 
+  $( window ).resize(function() {
+    var cw = $('.circle').width();
+    $('.circle').css({'height':cw+'px'});
+  });
+
+  function gameUpdated(doc)
+  {
+    if (doc.exists)
+    //Updated game state recieved
+    {
+      new_doc = doc.data();
+
+      console.log(last_doc);
+      console.log(new_doc);
+      console.log("");
+
+      //State Changed!
+      if (last_doc == {}               ||
+          new_doc.state != last_doc.state)
+      {
+        updateState(new_doc);
+      }
+
+      if (new_doc.turn % 2)
+      {
+        $('#head-t1').html("<b>Team 1</b>");
+        $('#head-t2').html("Team 2");
+      }
+      else
+      {
+        $('#head-t1').html("Team 1");
+        $('#head-t2').html("<b>Team 2</b>");
+      }
+
+      //Choice of question
+      if (last_doc.state == 1)
+      {
+        //state 1 - choice of question
+        until(_ => team != 0).then(function() {
+
+          //Disable all question options
+          $(".q").addClass("question-inactive");
+          $(".q").removeClass("question-selected");
+
+          // It's my turn
+          if ( (new_doc.turn % 2  && team == 1) ||
+             (!(new_doc.turn % 2) && team == 2))
+          {
+            for (var i=0; i < new_doc.choices.length; i++)
+            {
+              if (new_doc.choices[i])
+              {
+                $("#q"+i).removeClass("question-inactive")
+                $("#q"+i).addClass("question-active")
+                if (new_doc.choices[i] == 2)
+                {
+                  $("#q"+i).addClass("question-selected")
+                }
+              }
+            }
+
+            $("#helper-s1").text("Choose a Question");
+          }
+          // It's not my turn
+          else
+          {
+            for (var i=0; i < new_doc.choices.length; i++)
+            {
+              if (new_doc.choices[i] == 2)
+              {
+                $("#q"+i).addClass("question-selected")
+              }
+            }
+
+            $("#helper-s1").text("Other team is choosing...");
+          }
+        });
+      }
+      else if (last_doc.state == 1.1)
+      {
+        var cw = $('.circle').width();
+        $('.circle').css({'height':cw+'px'});
+
+        //state 1 - choice of question
+        until(_ => team != 0).then(function() {
+
+          // It's my turn
+          if ( (new_doc.turn % 2  && team == 1) ||
+             (!(new_doc.turn % 2) && team == 2))
+          {
+            $('#' + $.escapeSelector("helper-s1.1")).text("Click first clue to start time");
+          }
+          // It's not my turn
+          else
+          {
+            $('#' + $.escapeSelector("helper-s1.1")).text("Answer Correctly for a Bonus Point");
+          }
+        });
+      }
+
+      last_doc = doc.data();
+    }
+    else
+    //Error State
+    {
+      $('#state-1').show();
+    }
+  }
+
+  function until(conditionFunction) {
+
+    const poll = resolve => {
+      if(conditionFunction()) resolve();
+      else setTimeout(_ => poll(resolve), 400);
+    }
+
+    return new Promise(poll);
+  }
+
+  //Update global and visible divs
+  function updateState(new_doc)
+  {
+    var newState = new_doc.state
+
+    //Hide all state specific content
+    $('.state-cont').hide();
+
+    //Show constant header if game has started
+    if (newState > 0) $('#game-started').show();
+
+    if (newState == 1.1) $('#timer').show();
+
+    //Show div based on state
+    $('#state' + $.escapeSelector(newState)).show();
+
+    //Update local state
+    last_doc.state = newState;
+  }
+
+  //Listener: Game document
+  db.collection("Games").doc(gameID)
+    .onSnapshot(function(doc) {
+      if (!(loggedIn)) loginUser();
+      gameUpdated(doc);
+    })
+
+  //Make changes to firestore
+  function updateFirestoreUser(uid, dname, newTeam=1, ready=0)
+  {
     db.collection("Users").doc(uid).set({
       DisplayName: dname,
       Game: gameID,
-      Team: team,
+      Team: newTeam,
       Ready: ready
-    })
-    .then(function() {
-      console.log("Success!");
     })
     .catch(function(err) {
       console.log("Failed!" + err);
     });
 
-    updatePage(dname);
+    updateDname(dname);
+    team = newTeam;
   }
 
   //Update page text
-  function updatePage(dname)
+  function updateDname(dname)
   {
     $('#dname').text(dname);
     $('#changeDName').prop('disabled', false);
@@ -42,54 +183,58 @@ $(function() {
 
   function handleLoggedInUser(uid)
   {
+    loggedIn = true;
     db.collection("Users").doc(uid).get()
     .then(function(record) {
       if (record.exists)
       {
-        console.log("User Record exists! \n" + record.data());
-        //Signed in already
-        console.log("Now signed in as " + record.data().DisplayName);
+        // console.log("User Record exists! \n" + record.data());
+        // //Signed in already
+        // console.log("Now signed in as " + record.data().DisplayName);
 
         if (record.data().Game == gameID)
         {
-          console.log("User for this game");
+          // console.log("User for this game");
           //Unready if was ready before
-          updateFirestore(uid, record.data().DisplayName, record.data().Team, 0);
+          updateFirestoreUser(uid, record.data().DisplayName, record.data().Team, 0);
         }
         else
         {
-          console.log("User for another game");
+          // console.log("User for another game");
           //update to defaults with old name and new GameID
-          updateFirestore(uid, record.data().DisplayName);
+          updateFirestoreUser(uid, record.data().DisplayName);
         }
       }
       else
       {
-        console.log("User Record does not exist");
-        updateFirestore(uid, uid.substring(1,6));
+        // console.log("User Record does not exist");
+        updateFirestoreUser(uid, uid.substring(1,6));
       }
     });
   }
 
-  //On Page Load
-  $(document).ready( function () {
+  //Once state has been determined
+  function loginUser() {
     //Persists with Session
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
 
     //Get logged in User
     var user = firebase.auth().currentUser;
 
-    console.log("currentUser: " + user);
-
     if (user) {
       handleLoggedInUser(user.uid)
     }
     else {
-      console.log("not signed in");
       //Sign in or create new anon identity
       firebase.auth().signInAnonymously();
     }
-  });
+
+    //Listener for User change
+    // db.collection("Users").doc(user.uid)
+    //   .onSnapshot(function(doc) {
+    //     console.log(doc.data());
+    //   })
+  }
 
   //Listener for Login
   firebase.auth().onAuthStateChanged(function(user) {
@@ -99,6 +244,19 @@ $(function() {
     }
   });
 
+//----------State -1---------//
+
+  //Return Home
+  $('#home-but').click(function() {
+    $(location).attr('href', "/");
+  })
+  $('#top').click(function() {
+    $(location).attr('href', "/");
+  })
+
+//------------end------------//
+//----------State 0----------//
+
   //Click change name button
   $('#changeDName').click(function() {
     var user = firebase.auth().currentUser;
@@ -106,7 +264,7 @@ $(function() {
     //Jquery get new name
     var newDName = $('#newDName').val();
 
-    updatePage(newDName);
+    updateDname(newDName);
     $('#newDName').val("");
 
     db.collection("Users").doc(user.uid).update({
@@ -120,12 +278,14 @@ $(function() {
     db.collection("Users").doc(user.uid).update({
       Team: 1
     });
+    team = 1;
   });
   $('#joinT2').click(function() {
     var user = firebase.auth().currentUser;
     db.collection("Users").doc(user.uid).update({
       Team: 2
     });
+    team = 2;
   });
 
   //Ready toggle increments int, mod 2 to check
@@ -135,6 +295,52 @@ $(function() {
       Ready: firebase.firestore.FieldValue.increment(1)
     });
   });
+
+  $('#start').click(function() {
+
+    var turn = (Math.floor(Math.random() * 2))
+
+    if (turn) alert("TEAM 1 goes first");
+    else alert("TEAM 2 goes first");
+
+    db.collection("Games").doc(gameID).update({
+      turn: turn,
+      state: 1
+    });
+  });
+
+  //------------end------------//
+  //----------State 1----------//
+
+  $(document).on('click', '.question-active', function() {
+    $('.question-selected').removeClass("question-selected");
+    $(this).addClass("question-selected");
+
+    var findIdx = $.inArray(2,last_doc.choices)
+
+    if (findIdx >= 0) last_doc.choices[findIdx] = 1;
+
+    var newIdx = parseInt($(this).attr("id").substring(1));
+
+    last_doc.choices[newIdx] = 2;
+
+    console.log(last_doc.choices);
+
+    db.collection("Games").doc(gameID)
+      .update({
+        choices: last_doc.choices
+      });
+  });
+
+  $(document).on('click', '.question-selected', function() {
+    var qnumber = parseInt($(this).attr("id").substring(1));
+    db.collection("Games").doc(gameID).update({
+      selected: qnumber,
+      state: 1.1
+    });
+  });
+
+  //------------end------------//
 
   //Observer for query of users in Game
   db.collection("Users").where("Game","==",gameID)
@@ -152,6 +358,8 @@ $(function() {
         return;
       }
 
+      var readyCount = 0;
+
       //For each User in game
       querySnapshot.forEach(function(doc) {
         //get name
@@ -162,6 +370,7 @@ $(function() {
         {
           //set tick string (ascii)
           tick = "&#10004;";
+          readyCount++;
         }
 
         //Add to list based on team
@@ -185,8 +394,21 @@ $(function() {
           }
         }
       });
-      console.log("Team 1:", t1.join(", "));
-      console.log("Team 2:", t2.join(", "));
+
+      // console.log(readyCount + "/" + querySnapshot.size)
+      if (readyCount == querySnapshot.size &&
+          t1.length > 0                    &&
+          t2.length > 0                      )
+      {
+        $('#start').prop('disabled', false);
+      }
+      else
+      {
+        $('#start').prop('disabled', true);
+      }
+
+      // console.log("Team 1:", t1.join(", "));
+      // console.log("Team 2:", t2.join(", "));
 
       //Loop length longest team list
       var loop = Math.max(t1.length, t2.length);

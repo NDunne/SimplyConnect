@@ -1,8 +1,12 @@
 //Add new game to firebase backend
-function insertNewGame (gameCode) {
-  const writeResult = db.collection('Games').doc(gameCode).set({
-    started: false,
-    test: true
+async function insertNewGame (gameCode) {
+  await db.collection('Games').doc(gameCode).set({
+    state: 0,     //Lobby
+    turn: 0,      //Default
+    test: true,    //Debug info
+    choices: [1, 1, 1, 1, 1, 1], //initialise all available
+    selected: -1,
+    questions: []
   })
   .then(function() {console.log("Document write success!");})
   .catch(function(err) {console.error("Error writing document: ", error);});

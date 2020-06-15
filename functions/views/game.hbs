@@ -6,21 +6,40 @@
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
+    <meta name="viewport" content="width=device-width" />
+
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
+
+    <!-- Mobile CSS -->
+    <link rel="stylesheet" type="text/css" media="only screen and (max-device-width: 480px)" href="css/mobile.css" />
+
+    <!-- Browser CSS -->
+    <link rel="stylesheet" type="text/css" media="only screen and (min-device-width: 481px)" href="css/browser.css" />
 
   </head>
   <body>
     <div class=fixed-header>
-      <h1>Simply Connect</h1>
+      <h1 id="top">Simply Connect</h1>
     </div>
-    <div class=content id="pregame">
-      <div class=container>
+    <div class=content>
+      <!-- Constant Header -->
+      <div class="container">
         <h1 id="head">Game ID: {{gameCode}}</h1>
+      </div>
+
+      <!-- Error Page -->
+      <div class="container state-cont" id="state-1" style='display:none'>
+        <p><b>Game not Found!</b></p>
+        <div class=button-wrapper>
+          <input id="home-but" class="btn btn-success btn-block bigText" value="Home">
+        </div>
+      </div>
+
+      <!-- Lobby -->
+      <div class="container state-cont" id="state0" style='display:none'>
         <p>Your Display Name is: </p>
         <b><p id=dname>&nbsp;</p></b>
-      </div>
-      <div class="container">
         <div class="form-inner">
           <div class="form-group">
             <input type="text" id="newDName" class="form-control"placeholder="Display Name" maxlength="16">
@@ -30,10 +49,11 @@
           </div>
         </div>
         <div class="form-inner">
-          <button id="readyUp" class="btn btn-default" disabled="true">Ready!</button>
+          <div class="form-group">
+            <button id="readyUp" class="btn btn-default" disabled="true">Ready!</button>
+            <button id="start" class="btn btn-default" disabled="true">Start!</button>
+          </div>
         </div>
-      </div>
-      <div class="container">
         <table id=teamsTab>
           <tr>
             <th>Team 1</th>
@@ -45,12 +65,180 @@
           </tr>
         </table>
       </div>
+
+      <div id="game-started" class="state-cont" style='display:none'>
+
+        <!-- Constant top of Question rounds -->
+        <div class="head-wrapper container">
+          <h2 class=round-head> ROUND 1 </h2>
+          <!-- <button class="btn btn-secondary help-hover">?</button> -->
+          <h3 class=round-desc> See up to 4 clues, Find the connection! </h3>
+        </div>
+        <div id="scores-div">
+          <div class="team-score">
+            <div id="head-t1">               Team 1     </div>
+            <div class="score"> <h2 id="score-t1">0</h2> </div>
+          </div>
+          <div id="timer" class="state-cont" style="display:none">
+            <h2>45</h2>
+          </div>
+          <div class="team-score">
+            <div id="head-t2">                Team 2     </div>
+            <div class="score"> <h2 id="score-t2">0</h2> </div>
+          </div>
+        </div>
+
+        <!-- Round 1: 4 clues - Connection -->
+        <div id="state1" class="state-cont round-body" style='display:none'>
+          <h3 id="helper-s1">&nbsp;</h3>
+          <div class="q-wrapper">
+            <div id="q0" class="q question-inactive">A</div>
+            <div id="q1" class="q question-inactive">B</div>
+            <div id="q2" class="q question-inactive">C</div>
+            <div id="q3" class="q question-inactive">D</div>
+            <div id="q4" class="q question-inactive">E</div>
+            <div id="q5" class="q question-inactive">F</div>
+          </div>
+        </div>
+        <div id="state1.1" class="state-cont round-body" style='display:none'>
+          <h3 id="helper-s1.1">&nbsp;</h3>
+          <div class="wrapper">
+            <div class="col-wrapper">
+              <div class="buzz-button">
+                BUZZ!
+              </div>
+              <div>
+                <h4> Team Answers </h4>
+              </div>
+              <div class="scrollable">
+                <div class="teammate-block">
+                  <div class="teammate">
+                    <div class="teammate-name">
+                      Nathan
+                    </div>
+                    <div class="teammate-form">
+                      <div class="teammate-textbox">
+                        <input type="text" class="guessbox"/>
+                      </div>
+                      <div class="vote-wrapper">
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="teammate-button">
+                          <input type="button" class="smaller" value="Vote"/>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="teammate-block">
+                  <div class="teammate">
+                    <div class="teammate-name">
+                      Nathan
+                    </div>
+                    <div class="teammate-form">
+                      <div class="teammate-textbox">
+                        <input type="text" class="guessbox"/>
+                      </div>
+                      <div class="vote-wrapper">
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="teammate-button">
+                          <input type="button" class="smaller" value="Vote"/>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="teammate-block">
+                  <div class="teammate">
+                    <div class="teammate-name">
+                      Nathan
+                    </div>
+                    <div class="teammate-form">
+                      <div class="teammate-textbox">
+                        <input type="text" class="guessbox"/>
+                      </div>
+                      <div class="vote-wrapper">
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="teammate-button">
+                          <input type="button" class="smaller" value="Vote"/>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="teammate-block">
+                  <div class="teammate">
+                    <div class="teammate-name">
+                      Nathan
+                    </div>
+                    <div class="teammate-form">
+                      <div class="teammate-textbox">
+                        <input type="text" class="guessbox"/>
+                      </div>
+                      <div class="vote-wrapper">
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="teammate-button">
+                          <input type="button" class="smaller" value="Vote"/>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="player-block">
+                <div class="teammate">
+                  <div class="teammate-name">
+                    Your Answer:
+                  </div>
+                  <div class="teammate-form">
+                    <div class="teammate-textbox">
+                      <input type="text" class="guessbox"/>
+                    </div>
+                    <div class="vote-wrapper">
+                      <div class="teammate-button" id="suggest-div">
+                        <input type="button" class="smaller" value="Suggest"/>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="clue-wrapper">
+              <div id="clue0" class="q question-inactive">Next!</div>
+              <div id="clue1" class="q question-inactive">&nbsp;</div>
+              <div id="clue2" class="q question-inactive">&nbsp;</div>
+              <div id="clue3" class="q question-inactive">&nbsp;</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Round 2: 3 clues - Series -->
+        <div id="state2"   class="state-cont" style='display:none'>
+          ROUND 2
+        </div>
+
+      </div>
     </div>
-    <div class=content id="round1" style='display:none'>
-      ROUND 1
-    </div>
+
+    <!-- Constant Footer -->
     <div class=fixed-footer>
     </div>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <!-- The core Firebase JS SDK is always required and must be listed first -->
@@ -58,7 +246,7 @@
 
     <!-- TODO: Add SDKs for Firebase products that you want to use
          https://firebase.google.com/docs/web/setup#available-libraries -->
-    <script src="/__/firebase/7.15.0/firebase-analytics.js"></script>
+    <!-- <script src="/__/firebase/7.15.0/firebase-analytics.js"></script> -->
     <script src="/__/firebase/7.15.0/firebase-auth.js"></script>
     <script src="/__/firebase/7.15.0/firebase-firestore.js"></script>
 

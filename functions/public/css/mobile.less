@@ -1,0 +1,202 @@
+/* Common Round top */
+
+#scores-div{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.team-score{
+  height: inherit;
+  width: 18vw;
+  text-align: center;
+}
+
+#timer{
+  display: flex;
+  margin: auto 0;  font-size: 2.5vh;
+  margin-top: 1vh;
+  height: 50%;
+  padding: 2px;
+  background: #FFF;
+  border-radius: 5px;
+}
+
+/* Round Body */
+
+.round-body{
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  text-align: center;
+
+  h3 {
+    font-size: 2.5vh;
+    width: 100%;
+    padding: 0 5px;
+    margin-bottom: 0;
+    margin-top: 1vh;
+  }
+}
+
+h4{
+  font-size: 3vh;
+  margin: 5px 0;
+  font-weight: bold;
+}
+
+.wrapper{
+  flex: 1 1 auto;
+  display: flex;
+  text-align: center;
+}
+
+.q-wrapper{
+  .wrapper();
+  flex-wrap: wrap;
+
+  justify-content: space-around;
+  align-content: stretch;
+
+  padding: 10px;
+}
+
+.col-wrapper{
+  .wrapper();
+  flex-flow: column wrap;
+  max-width: 54vw;
+}
+
+.clue-wrapper{
+  .col-wrapper();
+  flex-grow: 0;
+  width: 36vw;
+}
+
+.vote-wrapper{
+  .wrapper();
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding-top: 5px;
+}
+
+.circle{
+  border-radius: 50%;
+  background: #2bda2b;
+  width: 10%;
+  margin: auto;
+}
+
+.question{
+  flex: 1 1 auto;
+  border: solid 1px #3a1759;
+  border-radius: 5px;
+  width: 30vw;
+  margin: 3vw;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.question-active{
+  background: #e2d3ee;
+  .question();
+  &:active {
+    background: #d2b3ee;
+  }
+}
+
+.question-inactive{
+  background: #a397ac;
+  border-width: 0px;
+  .question()
+}
+
+.question-selected{
+  border-width: 2px;
+  margin: calc(~"3vw - 1px")
+  .question()
+}
+
+.buzz-button{
+  flex: 1 1 auto;
+  border: solid 1px #3a1759;
+  border-radius: 5px;
+  text-align: center;
+  margin: 10px 7.5%;
+  max-height: 5vh;
+  font-size: 3vh;
+  width: 85%;
+  background: #e04646;
+}
+
+// .question-inner{
+//   margin: auto;
+// }
+
+.teammate-block{
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.player-block{
+  .teammate-block();
+  bottom: 4vh;
+}
+
+.teammate{
+  flex: 1 1 auto;
+  text-align: left;
+  width: inherit;
+}
+.teammate-name{
+  width: 100%;
+}
+
+.teammate-form{
+  display: flex;
+  flex-flow: column wrap;
+  align-items: flex-end;
+  width: inherit;
+}
+
+.teammate-button{
+  flex-grow: 0;
+}
+
+.teammate-textbox{
+  flex: 1 1 auto;
+  width: 100%
+}
+
+.guessbox{
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+#suggest-div{
+  align-self: flex-end;
+}
+
+.smaller{
+  font-size: smaller;
+}
+
+.thinner{
+  width: 95%;
+}
+
+.scrollable{
+  .smaller();
+  width: 85%;
+  overflow: scroll;
+  max-height: 25vh;
+  background: #fcfcfc;
+  margin: 0 10px
+}

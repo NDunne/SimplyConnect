@@ -57,26 +57,35 @@
     //Database reference
     let db = firebase.firestore();
 
+    function enableTest()
+    {
+      if(valid.test($('#joinid').val().toUpperCase()))
+      {
+        $('#joingame').prop('disabled', false);
+      }
+      else
+      {
+        $('#joingame').prop('disabled', true);
+      }
+    }
+
     $(document).ready(function(){
-      $('#joinid').on('input', function() {
-        if(valid.test(this.value.toUpperCase()))
-        {
-          $('#joingame').prop('disabled', false);
-        }
-        else
-        {
-          $('#joingame').prop('disabled', true);
-        }
-      });
 
-      $('#joingame').click(function(){
-        $(location).attr('href', "/game/"+$('#joinid').val().toUpperCase());
-      });
+      enableTest()
+    });
 
-      $('#newgame').click(function(){
-        var newGameID = newUniqueCode();
-        console.log(newGameID);
-        insertNewGame(newGameID);
+    $('#joinid').on('input', function() {
+      enableTest();
+    });
+
+    $('#joingame').click(function(){
+      $(location).attr('href', "/game/"+$('#joinid').val().toUpperCase());
+    });
+
+    $('#newgame').click(function(){
+      var newGameID = newUniqueCode();
+      console.log(newGameID);
+      insertNewGame(newGameID).then(function() {
         $(location).attr('href', "/game/"+newGameID);
       });
     });
