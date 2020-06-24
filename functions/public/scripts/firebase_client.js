@@ -10,6 +10,9 @@ $(function() {
   var loggedIn = false;
   var team = 0;
 
+  // var teammate-block =
+
+
   $( window ).resize(function() {
     var cw = $('.circle').width();
     $('.circle').css({'height':cw+'px'});
@@ -67,6 +70,7 @@ $(function() {
                 if (new_doc.choices[i] == 2)
                 {
                   $("#q"+i).addClass("question-selected")
+                  console.log("selected: " + i);
                 }
               }
             }
@@ -90,9 +94,6 @@ $(function() {
       }
       else if (last_doc.state == 1.1)
       {
-        var cw = $('.circle').width();
-        $('.circle').css({'height':cw+'px'});
-
         //state 1 - choice of question
         until(_ => team != 0).then(function() {
 
@@ -107,6 +108,11 @@ $(function() {
           {
             $('#' + $.escapeSelector("helper-s1.1")).text("Answer Correctly for a Bonus Point");
           }
+
+          db.collection("Users")
+            .where("Game","==",gameID)
+            .where("Team","==",team).get()
+            .then(updateGuesses);
         });
       }
 
@@ -157,13 +163,14 @@ $(function() {
     })
 
   //Make changes to firestore
-  function updateFirestoreUser(uid, dname, newTeam=1, ready=0)
+  function updateFirestoreUser(uid, dname, newTeam=1, ready=0, guess="")
   {
     db.collection("Users").doc(uid).set({
       DisplayName: dname,
       Game: gameID,
       Team: newTeam,
-      Ready: ready
+      Ready: ready,
+      Guess: guess
     })
     .catch(function(err) {
       console.log("Failed!" + err);
@@ -196,7 +203,7 @@ $(function() {
         {
           // console.log("User for this game");
           //Unready if was ready before
-          updateFirestoreUser(uid, record.data().DisplayName, record.data().Team, 0);
+          updateFirestoreUser(uid, record.data().DisplayName, record.data().Team, 0, record.data().Guess);
         }
         else
         {
@@ -228,12 +235,6 @@ $(function() {
       //Sign in or create new anon identity
       firebase.auth().signInAnonymously();
     }
-
-    //Listener for User change
-    // db.collection("Users").doc(user.uid)
-    //   .onSnapshot(function(doc) {
-    //     console.log(doc.data());
-    //   })
   }
 
   //Listener for Login
@@ -244,6 +245,157 @@ $(function() {
     }
   });
 
+  function getColour(uid)
+  {
+    return ('#' + (uid.replace(/[^0-9A-F]/g, "") + "000000").substring(0,6));
+  }
+
+  function updateTeams(querySnapshot)
+  {
+    var t1 = [];
+    var t2 = [];
+
+    var user = firebase.auth().currentUser;
+
+    if (!user)
+    {
+      //Don't allow team change until logged in
+      $('#joinT2').prop('disabled', true);
+      $('#joinT1').prop('disabled', true);
+      return;
+    }
+
+    var readyCount = 0;
+
+    //For each User in game
+    querySnapshot.forEach(function(doc) {
+      //get name
+      var dname = doc.data().DisplayName;
+
+      var tick = "";
+      if (doc.data().Ready % 2)
+      {
+        //set tick string (ascii)
+        tick = "&#10004;";
+        readyCount++;
+      }
+
+      var col = getColour(doc.data().id);
+
+      //Add to list based on team
+      if (doc.data().Team == 1)
+      {
+        t1.push('<div class="wrapper"><div class="circle" style="background: ' + col + '"></div><div>&nbsp;' + dname + tick + '</div></div>');
+        if (doc.id == user.uid)
+        {
+          //enable only other team's button
+          $('#joinT2').prop('disabled', false);
+          $('#joinT1').prop('disabled', true);
+        }
+      }
+      else
+      {
+        t2.push('<div class="end-wrapper"><div>' + tick + dname + '&nbsp;</div><div class="circle" style="background: #' + col + '"></div></div>');
+        if (doc.id == user.uid)
+        {
+          $('#joinT1').prop('disabled', false);
+          $('#joinT2').prop('disabled', true);
+        }
+      }
+    });
+
+    if (readyCount == querySnapshot.size &&
+        t1.length > 0                    &&
+        t2.length > 0                      )
+    {
+      $('#start').prop('disabled', false);
+    }
+    else
+    {
+      $('#start').prop('disabled', true);
+    }
+
+    //Loop length longest team list
+    var loop = Math.max(t1.length, t2.length);
+
+    //remove all but first two rows
+    $('#teamsTab').find("tr:gt(1)").remove();
+
+    for (var i = 0; i < loop; i++)
+    {
+      var n1 = "";
+      var n2 = "";
+
+      if (i < t1.length) n1 = t1[i];
+      if (i < t2.length) n2 = t2[i];
+
+      //Add row with names
+      $('#teamsTab').append('<tr><td>'+ n1 + '</td><td>' + n2 + '</td></tr>');
+    }
+
+    var cw = $('.circle').width();
+    $('.circle').css({'height':cw+'px'});
+  }
+
+  //Update Guesses from team
+  function updateGuesses(querySnapshot)
+  {
+    $('#teambox').empty();
+    querySnapshot.forEach(function(doc) {
+      var playername = doc.data().DisplayName;
+
+      if (doc.data().Team == team)
+      {
+        var col = getColour(doc.id);
+
+        $('#teambox').append(`
+          <div class="teammate-block">
+            <div class="teammate">
+              <div class="teammate-name">
+                <div class="wrapper"><div class="nomargin circle" style="background: ` + col + `"></div><div>&nbsp; ` + playername +`</div></div>
+              </div>
+              <div class="teammate-form">
+                <div class="teammate-textbox">
+                  <input type="text" class="guessbox" value="` + doc.data().Guess + `" disabled/>
+                </div>
+                <div class="vote-wrapper">
+                  <div class="circle"></div>
+                  <div class="circle"></div>
+                  <div class="circle"></div>
+                  <div class="circle"></div>
+                  <div class="circle"></div>
+                  <div class="teammate-button">
+                    <input type="button" class="smaller" value="Vote"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `);
+      }
+    });
+
+    var cw = $('.circle').width();
+    $('.circle').css({'height':cw+'px'});
+  }
+
+
+  //Observer for query of users in Game
+  db.collection("Users").where("Game","==",gameID)
+    .onSnapshot(function(querySnapshot) {
+
+      if (last_doc.state == 0)
+      {
+        updateTeams(querySnapshot);
+      }
+      else if (last_doc.state == 1.1)
+      {
+        console.log("Update Guesses!");
+        updateGuesses(querySnapshot);
+      }
+    });
+
+//------Input-Listeners------//
 //----------State -1---------//
 
   //Return Home
@@ -324,8 +476,6 @@ $(function() {
 
     last_doc.choices[newIdx] = 2;
 
-    console.log(last_doc.choices);
-
     db.collection("Games").doc(gameID)
       .update({
         choices: last_doc.choices
@@ -341,92 +491,15 @@ $(function() {
   });
 
   //------------end------------//
+  //----------State 1.1--------//
 
-  //Observer for query of users in Game
-  db.collection("Users").where("Game","==",gameID)
-    .onSnapshot(function(querySnapshot) {
-      var t1 = [];
-      var t2 = [];
-
-      var user = firebase.auth().currentUser;
-
-      if (!user)
-      {
-        //Don't allow team change until logged in
-        $('#joinT2').prop('disabled', true);
-        $('#joinT1').prop('disabled', true);
-        return;
-      }
-
-      var readyCount = 0;
-
-      //For each User in game
-      querySnapshot.forEach(function(doc) {
-        //get name
-        var dname = doc.data().DisplayName;
-
-        var tick = "";
-        if (doc.data().Ready % 2)
-        {
-          //set tick string (ascii)
-          tick = "&#10004;";
-          readyCount++;
-        }
-
-        //Add to list based on team
-        if (doc.data().Team == 1)
-        {
-          t1.push(dname + tick);
-          if (doc.id == user.uid)
-          {
-            //enable only other team's button
-            $('#joinT2').prop('disabled', false);
-            $('#joinT1').prop('disabled', true);
-          }
-        }
-        else
-        {
-          t2.push(tick + dname);
-          if (doc.id == user.uid)
-          {
-            $('#joinT1').prop('disabled', false);
-            $('#joinT2').prop('disabled', true);
-          }
-        }
-      });
-
-      // console.log(readyCount + "/" + querySnapshot.size)
-      if (readyCount == querySnapshot.size &&
-          t1.length > 0                    &&
-          t2.length > 0                      )
-      {
-        $('#start').prop('disabled', false);
-      }
-      else
-      {
-        $('#start').prop('disabled', true);
-      }
-
-      // console.log("Team 1:", t1.join(", "));
-      // console.log("Team 2:", t2.join(", "));
-
-      //Loop length longest team list
-      var loop = Math.max(t1.length, t2.length);
-
-      //remove all but first two rows
-      $('#teamsTab').find("tr:gt(1)").remove();
-
-      for (var i = 0; i < loop; i++)
-      {
-        var n1 = "";
-        var n2 = "";
-
-        if (i < t1.length) n1 = t1[i];
-        if (i < t2.length) n2 = t2[i];
-
-        //Add row with names
-        $('#teamsTab').append('<tr><td>'+ n1 + '</td><td>' + n2 + '</td></tr>');
-      }
-
+  $(document).on('click', '#suggest-button', function() {
+    db.collection("Users").doc(firebase.auth().currentUser.uid).update({
+      Guess: $('#myguessbox').val()
     });
-})
+    $('#myguessbox').val('');
+  });
+
+  //------------end------------//
+
+});

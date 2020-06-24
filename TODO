@@ -1,7 +1,5 @@
-- Limit team size - 5 each
-  - Disallow new players if 10
-  - Disallow team switch if 5
-  - Allow Leave
+- Disallow new players if 10
+  - Disallow new players if not in Lobby 
 
 - Red/Blue teams
   - Indicate player's teams

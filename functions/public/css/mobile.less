@@ -1,3 +1,15 @@
+/* Home */
+
+// .container{
+//   p{
+//     padding: 10px;
+//   }
+//   h1{
+//     padding: 30px 10px
+//   }
+// }
+
+
 /* Common Round top */
 
 #scores-div{
@@ -17,7 +29,7 @@
   display: flex;
   margin: auto 0;  font-size: 2.5vh;
   margin-top: 1vh;
-  height: 50%;
+  // height: 50%;
   padding: 2px;
   background: #FFF;
   border-radius: 5px;
@@ -52,6 +64,11 @@ h4{
   text-align: center;
 }
 
+.end-wrapper{
+  .wrapper();
+  justify-content: flex-end;
+}
+
 .q-wrapper{
   .wrapper();
   flex-wrap: wrap;
@@ -82,11 +99,17 @@ h4{
   padding-top: 5px;
 }
 
+.circle.nomargin{
+  margin-top: 1%;
+}
+
 .circle{
   border-radius: 50%;
   background: #2bda2b;
   width: 10%;
-  margin: auto;
+  margin-top: 3%;
+  // margin: auto;
+  // visibility: hidden;
 }
 
 .question{
@@ -116,9 +139,9 @@ h4{
 }
 
 .question-selected{
+.question();
   border-width: 2px;
   margin: calc(~"3vw - 1px")
-  .question()
 }
 
 .buzz-button{
@@ -141,7 +164,7 @@ h4{
   flex: 1 1 auto;
   display: flex;
   align-items: center;
-  padding: 0 10px;
+  padding: 5px 10px;
   width: 100%;
 }
 
@@ -168,6 +191,7 @@ h4{
 
 .teammate-button{
   flex-grow: 0;
+  margin-bottom: 2vh;
 }
 
 .teammate-textbox{
@@ -196,7 +220,12 @@ h4{
   .smaller();
   width: 85%;
   overflow: scroll;
-  max-height: 25vh;
+  max-height: 26vh;
+  min-height: 26vh;
   background: #fcfcfc;
   margin: 0 10px
+}
+
+#teambox{
+  padding: 5px 0;
 }

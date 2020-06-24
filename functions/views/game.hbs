@@ -104,101 +104,13 @@
           <h3 id="helper-s1.1">&nbsp;</h3>
           <div class="wrapper">
             <div class="col-wrapper">
-              <div class="buzz-button">
+              <div class="buzz-button" style="visibility:hidden">
                 BUZZ!
               </div>
               <div>
                 <h4> Team Answers </h4>
               </div>
-              <div class="scrollable">
-                <div class="teammate-block">
-                  <div class="teammate">
-                    <div class="teammate-name">
-                      Nathan
-                    </div>
-                    <div class="teammate-form">
-                      <div class="teammate-textbox">
-                        <input type="text" class="guessbox"/>
-                      </div>
-                      <div class="vote-wrapper">
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="teammate-button">
-                          <input type="button" class="smaller" value="Vote"/>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="teammate-block">
-                  <div class="teammate">
-                    <div class="teammate-name">
-                      Nathan
-                    </div>
-                    <div class="teammate-form">
-                      <div class="teammate-textbox">
-                        <input type="text" class="guessbox"/>
-                      </div>
-                      <div class="vote-wrapper">
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="teammate-button">
-                          <input type="button" class="smaller" value="Vote"/>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="teammate-block">
-                  <div class="teammate">
-                    <div class="teammate-name">
-                      Nathan
-                    </div>
-                    <div class="teammate-form">
-                      <div class="teammate-textbox">
-                        <input type="text" class="guessbox"/>
-                      </div>
-                      <div class="vote-wrapper">
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="teammate-button">
-                          <input type="button" class="smaller" value="Vote"/>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="teammate-block">
-                  <div class="teammate">
-                    <div class="teammate-name">
-                      Nathan
-                    </div>
-                    <div class="teammate-form">
-                      <div class="teammate-textbox">
-                        <input type="text" class="guessbox"/>
-                      </div>
-                      <div class="vote-wrapper">
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="teammate-button">
-                          <input type="button" class="smaller" value="Vote"/>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div class="scrollable" id="teambox">
               </div>
               <div class="player-block">
                 <div class="teammate">
@@ -207,11 +119,11 @@
                   </div>
                   <div class="teammate-form">
                     <div class="teammate-textbox">
-                      <input type="text" class="guessbox"/>
+                      <input type="text" class="guessbox" id="myguessbox"/>
                     </div>
                     <div class="vote-wrapper">
-                      <div class="teammate-button" id="suggest-div">
-                        <input type="button" class="smaller" value="Suggest"/>
+                      <div id="suggest-div">
+                        <input type="button" class="smaller" id="suggest-button"value="Suggest"/>
                       </div>
                     </div>
                   </div>

@@ -28,7 +28,7 @@ body {
   height: 4vh;
 }
 .content {
-  position: relative;
+  position: absolute;
   display: flex;
   flex-direction: column;
   width: 90%;

@@ -1,3 +1,4 @@
+/* Home */
 /* Common Round top */
 #scores-div {
   display: flex;
@@ -15,7 +16,6 @@
   margin: auto 0;
   font-size: 2.5vh;
   margin-top: 1vh;
-  height: 50%;
   padding: 2px;
   background: #FFF;
   border-radius: 5px;
@@ -43,6 +43,12 @@ h4 {
   flex: 1 1 auto;
   display: flex;
   text-align: center;
+}
+.end-wrapper {
+  flex: 1 1 auto;
+  display: flex;
+  text-align: center;
+  justify-content: flex-end;
 }
 .q-wrapper {
   flex: 1 1 auto;
@@ -78,11 +84,14 @@ h4 {
   width: 100%;
   padding-top: 5px;
 }
+.circle.nomargin {
+  margin-top: 1%;
+}
 .circle {
   border-radius: 50%;
   background: #2bda2b;
   width: 10%;
-  margin: auto;
+  margin-top: 3%;
 }
 .question {
   flex: 1 1 auto;
@@ -124,8 +133,17 @@ h4 {
   align-items: center;
 }
 .question-selected {
+  flex: 1 1 auto;
+  border: solid 1px #3a1759;
+  border-radius: 5px;
+  width: 30vw;
+  margin: 3vw;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border-width: 2px;
-  margin: calc(3vw - 1px) flex: 1 1 auto; border: solid 1px #3a1759; border-radius: 5px; width: 30vw; margin: 3vw; text-align: center; display: flex; justify-content: center; align-items: center;;
+  margin: calc(3vw - 1px);
 }
 .buzz-button {
   flex: 1 1 auto;
@@ -142,14 +160,14 @@ h4 {
   flex: 1 1 auto;
   display: flex;
   align-items: center;
-  padding: 0 10px;
+  padding: 5px 10px;
   width: 100%;
 }
 .player-block {
   flex: 1 1 auto;
   display: flex;
   align-items: center;
-  padding: 0 10px;
+  padding: 5px 10px;
   width: 100%;
   bottom: 4vh;
 }
@@ -169,6 +187,7 @@ h4 {
 }
 .teammate-button {
   flex-grow: 0;
+  margin-bottom: 2vh;
 }
 .teammate-textbox {
   flex: 1 1 auto;
@@ -191,7 +210,11 @@ h4 {
   font-size: smaller;
   width: 85%;
   overflow: scroll;
-  max-height: 25vh;
+  max-height: 26vh;
+  min-height: 26vh;
   background: #fcfcfc;
   margin: 0 10px;
+}
+#teambox {
+  padding: 5px 0;
 }
