@@ -9,13 +9,34 @@ $(function() {
   var last_doc = {};
   var loggedIn = false;
   var team = 0;
+  var displayName = "";
 
-  // var teammate-block =
+  doResize();
 
+  function doResize()
+  {
+    // First we get the viewport height and we multiple it by 1% to get a value for a vh unit
+    let vh = window.innerHeight * 0.01;
+    // Then we set the value in the --vh custom property to the root of the document
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
 
-  $( window ).resize(function() {
     var cw = $('.circle').width();
     $('.circle').css({'height':cw+'px'});
+
+    console.log($(window).innerHeight());
+
+    if(( window.innerHeight/screen.availHeight)*100 < 60)
+    {
+        $('.keyboard-hide').css({display:"none"})
+    }
+    else
+    {
+      $('.keyboard-hide').removeAttr('style');
+    }
+  }
+
+  $( window ).resize(function() {
+    doResize();
   });
 
   function gameUpdated(doc)
@@ -102,17 +123,42 @@ $(function() {
              (!(new_doc.turn % 2) && team == 2))
           {
             $('#' + $.escapeSelector("helper-s1.1")).text("Click first clue to start time");
+            $('#' + $.escapeSelector("helper-s1.1-msgs")).text("Discuss your answer, buzz when ready.");
           }
           // It's not my turn
           else
           {
             $('#' + $.escapeSelector("helper-s1.1")).text("Answer Correctly for a Bonus Point");
+            $('#' + $.escapeSelector("helper-s1.1-msgs")).text("Discuss your bonus point answer");
           }
 
-          db.collection("Users")
-            .where("Game","==",gameID)
-            .where("Team","==",team).get()
-            .then(updateGuesses);
+          //Listener: Chat Messages
+          db.collection("Chats").doc(gameID + "_" + team)
+            .onSnapshot(function(doc) {
+              $("#messages").html("");
+
+              messages = doc.data()
+
+              if (messages)
+              {
+
+                var h = $("#" + $.escapeSelector("chat-s1.1")).height();
+                console.log(h);
+                doc.data().msgs.forEach(msg => {
+
+                  $("#messages").append(`
+                    <div class="msg">
+                      <div class="circle smaller" style="background: ` + msg.col + `"></div>
+                      <div class="msgname">`+ msg.sender + `: </div>
+                      <div class="msgcontent">
+                      ` + msg.content + `
+                      </div>
+                     </div>
+                  `);
+                });
+                $("#" + $.escapeSelector("chat-s1.1")).height(h);
+              }
+            })
         });
       }
 
@@ -163,14 +209,13 @@ $(function() {
     })
 
   //Make changes to firestore
-  function updateFirestoreUser(uid, dname, newTeam=1, ready=0, guess="")
+  function updateFirestoreUser(uid, dname, newTeam=1, ready=0)
   {
     db.collection("Users").doc(uid).set({
       DisplayName: dname,
       Game: gameID,
       Team: newTeam,
-      Ready: ready,
-      Guess: guess
+      Ready: ready
     })
     .catch(function(err) {
       console.log("Failed!" + err);
@@ -186,6 +231,8 @@ $(function() {
     $('#dname').text(dname);
     $('#changeDName').prop('disabled', false);
     $('#readyUp').prop('disabled', false);
+
+    displayName = dname;
   }
 
   function handleLoggedInUser(uid)
@@ -280,7 +327,7 @@ $(function() {
         readyCount++;
       }
 
-      var col = getColour(doc.data().id);
+      var col = getColour(doc.id);
 
       //Add to list based on team
       if (doc.data().Team == 1)
@@ -295,7 +342,7 @@ $(function() {
       }
       else
       {
-        t2.push('<div class="end-wrapper"><div>' + tick + dname + '&nbsp;</div><div class="circle" style="background: #' + col + '"></div></div>');
+        t2.push('<div class="end-wrapper"><div>' + tick + dname + '&nbsp;</div><div class="circle" style="background: ' + col + '"></div></div>');
         if (doc.id == user.uid)
         {
           $('#joinT1').prop('disabled', false);
@@ -337,49 +384,6 @@ $(function() {
     $('.circle').css({'height':cw+'px'});
   }
 
-  //Update Guesses from team
-  function updateGuesses(querySnapshot)
-  {
-    $('#teambox').empty();
-    querySnapshot.forEach(function(doc) {
-      var playername = doc.data().DisplayName;
-
-      if (doc.data().Team == team)
-      {
-        var col = getColour(doc.id);
-
-        $('#teambox').append(`
-          <div class="teammate-block">
-            <div class="teammate">
-              <div class="teammate-name">
-                <div class="wrapper"><div class="nomargin circle" style="background: ` + col + `"></div><div>&nbsp; ` + playername +`</div></div>
-              </div>
-              <div class="teammate-form">
-                <div class="teammate-textbox">
-                  <input type="text" class="guessbox" value="` + doc.data().Guess + `" disabled/>
-                </div>
-                <div class="vote-wrapper">
-                  <div class="circle"></div>
-                  <div class="circle"></div>
-                  <div class="circle"></div>
-                  <div class="circle"></div>
-                  <div class="circle"></div>
-                  <div class="teammate-button">
-                    <input type="button" class="smaller" value="Vote"/>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        `);
-      }
-    });
-
-    var cw = $('.circle').width();
-    $('.circle').css({'height':cw+'px'});
-  }
-
-
   //Observer for query of users in Game
   db.collection("Users").where("Game","==",gameID)
     .onSnapshot(function(querySnapshot) {
@@ -390,8 +394,8 @@ $(function() {
       }
       else if (last_doc.state == 1.1)
       {
-        console.log("Update Guesses!");
-        updateGuesses(querySnapshot);
+        // console.log("Update Guesses!");
+        // updateGuesses(querySnapshot);
       }
     });
 
@@ -493,12 +497,37 @@ $(function() {
   //------------end------------//
   //----------State 1.1--------//
 
-  $(document).on('click', '#suggest-button', function() {
-    db.collection("Users").doc(firebase.auth().currentUser.uid).update({
-      Guess: $('#myguessbox').val()
-    });
-    $('#myguessbox').val('');
-  });
+
+
+  //------------end------------//
+  //---------Key-Listener------//
+
+  $(document).keyup(function(event) {
+    if ($("#sendbox").is(":focus") && event.key == "Enter") {
+      console.log($("#sendbox").val());
+
+      var user = firebase.auth().currentUser;
+
+      console.log(user.uid);
+
+      console.log(displayName);
+
+      db.collection("Chats").doc(gameID + "_" + team)
+        .set({
+          msgs: firebase.firestore.FieldValue.arrayUnion({
+            col: getColour(user.uid),
+            sender: displayName,
+            content: " " + $("#sendbox").val()
+          })
+        },
+        {
+          merge: true
+        }
+      );
+
+      $("#sendbox").val("");
+    }
+});
 
   //------------end------------//
 

@@ -6,10 +6,10 @@
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    <!-- <link rel="stylesheet" type="text/css" href="css/styles.css" /> -->
 
     <!-- Mobile CSS -->
     <link rel="stylesheet" type="text/css" media="only screen and (max-device-width: 480px)" href="css/mobile.css" />
@@ -24,7 +24,7 @@
     </div>
     <div class=content>
       <!-- Constant Header -->
-      <div class="container">
+      <div class="container keyboard-hide">
         <h1 id="head">Game ID: {{gameCode}}</h1>
       </div>
 
@@ -69,28 +69,32 @@
       <div id="game-started" class="state-cont" style='display:none'>
 
         <!-- Constant top of Question rounds -->
-        <div class="head-wrapper container">
+        <div class="head-wrapper container keyboard-hide">
           <h2 class=round-head> ROUND 1 </h2>
           <!-- <button class="btn btn-secondary help-hover">?</button> -->
           <h3 class=round-desc> See up to 4 clues, Find the connection! </h3>
         </div>
         <div id="scores-div">
           <div class="team-score">
-            <div id="head-t1">               Team 1     </div>
-            <div class="score"> <h2 id="score-t1">0</h2> </div>
+            <div class=" keyboard-hide">
+              <div id="head-t1" class="scale-height-small"> Team 1 </div>
+              <div class="score"> <h2 id="score-t1" class="scale-height-big">0</h2></div>
+            </div>
           </div>
           <div id="timer" class="state-cont" style="display:none">
-            <h2>45</h2>
+            <h2 class="scale-height-big">45</h2>
           </div>
           <div class="team-score">
-            <div id="head-t2">                Team 2     </div>
-            <div class="score"> <h2 id="score-t2">0</h2> </div>
+            <div class=" keyboard-hide">
+              <div id="head-t2" class="scale-height-small"> Team 2 </div>
+              <div class="score"> <h2 id="score-t2" class="scale-height-big">0</h2></div>
+            </div>
           </div>
         </div>
 
         <!-- Round 1: 4 clues - Connection -->
         <div id="state1" class="state-cont round-body" style='display:none'>
-          <h3 id="helper-s1">&nbsp;</h3>
+          <h3 id="helper-s1" class="keyboard-hide">&nbsp;</h3>
           <div class="q-wrapper">
             <div id="q0" class="q question-inactive">A</div>
             <div id="q1" class="q question-inactive">B</div>
@@ -101,33 +105,20 @@
           </div>
         </div>
         <div id="state1.1" class="state-cont round-body" style='display:none'>
-          <h3 id="helper-s1.1">&nbsp;</h3>
+          <h3 id="helper-s1.1" class="keyboard-hide">&nbsp;</h3>
           <div class="wrapper">
             <div class="col-wrapper">
-              <div class="buzz-button" style="visibility:hidden">
+              <div class="buzz-button">
                 BUZZ!
               </div>
-              <div>
-                <h4> Team Answers </h4>
-              </div>
-              <div class="scrollable" id="teambox">
-              </div>
-              <div class="player-block">
-                <div class="teammate">
-                  <div class="teammate-name">
-                    Your Answer:
-                  </div>
-                  <div class="teammate-form">
-                    <div class="teammate-textbox">
-                      <input type="text" class="guessbox" id="myguessbox"/>
-                    </div>
-                    <div class="vote-wrapper">
-                      <div id="suggest-div">
-                        <input type="button" class="smaller" id="suggest-button"value="Suggest"/>
-                      </div>
-                    </div>
-                  </div>
+              <div class="scrollable" id="chat-s1.1">
+                <div id="messages">
+                <!-- Messages -->
                 </div>
+                <p id="helper-s1.1-msgs" class="helptext scale-height-small"> </p>
+              </div>
+              <div id="sendbox-div">
+                <input id="sendbox" type="text">
               </div>
             </div>
             <div class="clue-wrapper">

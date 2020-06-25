@@ -1,12 +1,15 @@
 body{
-  padding-bottom: 40px;
-  margin:0;
+  // padding-bottom: 40px;
+  margin: 0;
+  height: 100%; //calc(var(--vh, 1vh) * 100);
+  min-height: -webkit-fill-available;
+  padding: 0;
 }
 
 .fixed-header, .fixed-footer{
   width: 100%;
-  height: 8vh;
-  position: fixed;
+  height: 8vw;
+  position: relative;
   background: #3a1759;
   color: #FFF;
   z-index: 20;
@@ -18,14 +21,14 @@ body{
 }
 .fixed-header h1{
   margin: 0 auto;
-  font-size: 6vh;
-  line-height: 4vh;
-  padding-top: 2vh;
+  font-size: 6vw;
+  line-height: 4vw;
+  padding-top: 2vw;
 }
 
 .fixed-footer{
   bottom: 0;
-  height: 4vh;
+  height: 4vw;
 }
 
 .content{
@@ -35,10 +38,10 @@ body{
   width: 90%;
   background: #EEEEEE;
   margin: 0 5%;
-  top: 8vh;
-  bottom: 4vh;
+  top: 8vw;
+  bottom: 4vw;
   flex: 1 1 auto;
-  min-height: 88vh;
+  min-height: 88vw;
 }
 
 .container{
@@ -54,16 +57,18 @@ body{
 }
 
 .container h1{
-  font-size: 4vh;
+  font-size: 4vw;
 }
 
 .container h2{
-  font-size: 3vh;
+  font-size: 3vw;
 }
 
 .container p{
   text-align: center;
-  font-size: 3vh;
+  font-size: 3vw;
+
+  line-height: 4vw;
 }
 
 input {
@@ -85,7 +90,7 @@ input {
 }
 
 .bigText{
-  font-size: 4vh;
+  font-size: 4vw;
 }
 
 .round-head, .help-hover{
@@ -98,8 +103,8 @@ input {
 }
 
 .head-wrapper h3{
-  font-size: 2.5vh;
-  margin-top: 1vh;
+  font-size: 2.5vw;
+  margin-top: 1vw;
 }
 
 #dname{
@@ -111,7 +116,7 @@ input {
 }
 
 #joinid{
-  height: 8vh;
+  height: 8vw;
 }
 
 #teamsTab{
@@ -120,11 +125,11 @@ input {
 }
 
 .pad{
-  margin-bottom: 3vh;
+  margin-bottom: 3vw;
 }
 
 #teamsTab tr td{
-  height: 6vh;
+  height: 6vw;
 }
 
 #teamsTab>tbody>tr>:nth-child(2){

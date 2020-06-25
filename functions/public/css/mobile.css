@@ -1,4 +1,152 @@
-/* Home */
+/* Common */
+html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+body {
+  width: 100%;
+  margin: 0;
+  font-family: sans-serif;
+  height: 100%;
+  overflow: hidden;
+}
+.fixed {
+  width: 100%;
+  position: absolute;
+  background: #3a1759;
+  color: #FFF;
+  z-index: 20;
+  left: 0;
+}
+.fixed-header {
+  width: 100%;
+  position: absolute;
+  background: #3a1759;
+  color: #FFF;
+  z-index: 20;
+  left: 0;
+  height: 50px;
+}
+.fixed-header h1 {
+  margin: 0 auto;
+  font-size: 35px;
+  padding-top: 2vw;
+}
+.fixed-header,
+.score {
+  top: 0;
+  text-align: center;
+}
+.fixed-footer {
+  position: absolute;
+  background: #3a1759;
+  color: #FFF;
+  z-index: 20;
+  left: 0;
+  bottom: 0;
+  height: 25px;
+  width: 100%;
+}
+.content {
+  position: absolute;
+  height: calc(100% - 75px);
+  overflow: auto;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  background: #EEEEEE;
+  margin: 0 5%;
+  top: 50px;
+}
+.container {
+  width: 100%;
+  margin: 0;
+  padding: 10px;
+  padding-bottom: 0;
+}
+.container h1,
+h2 {
+  text-align: center;
+  margin: 0 auto;
+}
+.container h1 {
+  font-size: 5vw;
+  line-height: 8vw;
+}
+.container h2 {
+  font-size: 4.5vw;
+}
+.container h3 {
+  font-size: 4vw;
+}
+.container p {
+  text-align: center;
+  font-size: 3.5vw;
+  line-height: 6vw;
+}
+.bigText {
+  font-size: 6vw;
+}
+#joinid {
+  height: 10vw;
+  text-align: center;
+}
+.form-inner {
+  display: flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
+.button-wrapper {
+  text-align: center;
+  width: 60%;
+  margin: 0 auto;
+  padding: 2vw 0;
+}
+.round-head,
+.help-hover {
+  display: inline-block;
+  padding: 0;
+}
+.head-wrapper {
+  text-align: center;
+}
+.head-wrapper h3 {
+  font-size: 4vw;
+  margin-top: 1vw;
+}
+#dname {
+  margin-bottom: 0;
+}
+#newDName,
+#changeDName {
+  margin: 10px 0 0;
+}
+#joinid {
+  height: 8vw;
+}
+#teamsTab {
+  width: 75%;
+  margin: 0 auto;
+}
+.pad {
+  margin-bottom: 3vw;
+}
+#teamsTab tr td {
+  height: 6vw;
+}
+#teamsTab > tbody > tr > :nth-child(2) {
+  text-align: right;
+}
+/* Round CSS */
+#game-started {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
 /* Common Round top */
 #scores-div {
   display: flex;
@@ -14,8 +162,7 @@
 #timer {
   display: flex;
   margin: auto 0;
-  font-size: 2.5vh;
-  margin-top: 1vh;
+  margin-top: 1%;
   padding: 2px;
   background: #FFF;
   border-radius: 5px;
@@ -28,32 +175,42 @@
   text-align: center;
 }
 .round-body h3 {
-  font-size: 2.5vh;
+  font-size: 4vw;
   width: 100%;
   padding: 0 5px;
   margin-bottom: 0;
-  margin-top: 1vh;
+  margin-top: 5px;
 }
-h4 {
+.scale-height-big {
+  font-size: 4vh;
+}
+.scale-height-med {
   font-size: 3vh;
-  margin: 5px 0;
-  font-weight: bold;
+}
+.scale-height-small {
+  font-size: 2.5vh;
 }
 .wrapper {
   flex: 1 1 auto;
   display: flex;
+  align-items: stretch;
   text-align: center;
+  min-height: 300px;
 }
 .end-wrapper {
   flex: 1 1 auto;
   display: flex;
+  align-items: stretch;
   text-align: center;
+  min-height: 300px;
   justify-content: flex-end;
 }
 .q-wrapper {
   flex: 1 1 auto;
   display: flex;
+  align-items: stretch;
   text-align: center;
+  min-height: 300px;
   flex-wrap: wrap;
   justify-content: space-around;
   align-content: stretch;
@@ -62,23 +219,32 @@ h4 {
 .col-wrapper {
   flex: 1 1 auto;
   display: flex;
+  align-items: stretch;
   text-align: center;
+  min-height: 300px;
   flex-flow: column wrap;
+  justify-content: start;
   max-width: 54vw;
 }
 .clue-wrapper {
   flex: 1 1 auto;
   display: flex;
+  align-items: stretch;
   text-align: center;
+  min-height: 300px;
   flex-flow: column wrap;
+  justify-content: start;
   max-width: 54vw;
+  justify-content: space-evenly;
   flex-grow: 0;
   width: 36vw;
 }
 .vote-wrapper {
   flex: 1 1 auto;
   display: flex;
+  align-items: stretch;
   text-align: center;
+  min-height: 300px;
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
@@ -93,12 +259,16 @@ h4 {
   width: 10%;
   margin-top: 3%;
 }
+.circle.smaller {
+  margin: 3%;
+  width: 5%;
+}
 .question {
   flex: 1 1 auto;
   border: solid 1px #3a1759;
   border-radius: 5px;
   width: 30vw;
-  margin: 3vw;
+  margin: 8px 16px;
   text-align: center;
   display: flex;
   justify-content: center;
@@ -110,7 +280,7 @@ h4 {
   border: solid 1px #3a1759;
   border-radius: 5px;
   width: 30vw;
-  margin: 3vw;
+  margin: 8px 16px;
   text-align: center;
   display: flex;
   justify-content: center;
@@ -126,7 +296,7 @@ h4 {
   border: solid 1px #3a1759;
   border-radius: 5px;
   width: 30vw;
-  margin: 3vw;
+  margin: 8px 16px;
   text-align: center;
   display: flex;
   justify-content: center;
@@ -137,68 +307,23 @@ h4 {
   border: solid 1px #3a1759;
   border-radius: 5px;
   width: 30vw;
-  margin: 3vw;
+  margin: 8px 16px;
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
   border-width: 2px;
-  margin: calc(3vw - 1px);
+  margin: 7px 15px;
 }
 .buzz-button {
-  flex: 1 1 auto;
   border: solid 1px #3a1759;
   border-radius: 5px;
   text-align: center;
   margin: 10px 7.5%;
-  max-height: 5vh;
-  font-size: 3vh;
+  font-size: larger;
   width: 85%;
   background: #e04646;
-}
-.teammate-block {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  padding: 5px 10px;
-  width: 100%;
-}
-.player-block {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  padding: 5px 10px;
-  width: 100%;
-  bottom: 4vh;
-}
-.teammate {
-  flex: 1 1 auto;
-  text-align: left;
-  width: inherit;
-}
-.teammate-name {
-  width: 100%;
-}
-.teammate-form {
-  display: flex;
-  flex-flow: column wrap;
-  align-items: flex-end;
-  width: inherit;
-}
-.teammate-button {
-  flex-grow: 0;
-  margin-bottom: 2vh;
-}
-.teammate-textbox {
-  flex: 1 1 auto;
-  width: 100%;
-}
-.guessbox {
-  max-width: 100%;
-  box-sizing: border-box;
-}
-#suggest-div {
-  align-self: flex-end;
+  flex: 0 1 auto;
 }
 .smaller {
   font-size: smaller;
@@ -208,13 +333,29 @@ h4 {
 }
 .scrollable {
   font-size: smaller;
-  width: 85%;
+  flex-grow: 1;
+  width: 93%;
   overflow: scroll;
-  max-height: 26vh;
-  min-height: 26vh;
   background: #fcfcfc;
-  margin: 0 10px;
+  margin-left: 5%;
+  padding: 3px;
+  display: flex;
+  flex-direction: column-reverse;
+  text-align: left;
 }
-#teambox {
-  padding: 5px 0;
+.helptext {
+  color: #6a6a6a;
+  text-align: center;
+}
+.msg {
+  display: flex;
+}
+.msgcontent {
+  padding-left: 4px;
+  word-break: break-word;
+}
+#sendbox {
+  text-align: left;
+  margin: 10px;
+  width: 90%;
 }
