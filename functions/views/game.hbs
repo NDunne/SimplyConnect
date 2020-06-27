@@ -42,7 +42,7 @@
         <b><p id=dname>&nbsp;</p></b>
         <div class="form-inner">
           <div class="form-group">
-            <input type="text" id="newDName" class="form-control"placeholder="Display Name" maxlength="16">
+            <input type="text" id="newDName" class="form-control"placeholder="Display Name" maxlength="8">
           </div>
           <div class="form-group">
             <button id="changeDName" class="btn btn-default" disabled="true">Update</button>
@@ -57,10 +57,12 @@
         <table id=teamsTab>
           <tr>
             <th>Team 1</th>
+            <th></th>
             <th>Team 2</th>
           </tr>
           <tr>
             <td><button id="joinT1" class="btn btn-default pad" disabled=true>Join</button></td>
+            <td><button id="makeLeader" class="btn btn-default pad">Become<br>Leader</button></td>
             <td><button id="joinT2" class="btn btn-default pad" disabled=true>Join</button></td>
           </tr>
         </table>
@@ -108,7 +110,7 @@
           <h3 id="helper-s1.1" class="keyboard-hide">&nbsp;</h3>
           <div class="wrapper">
             <div class="col-wrapper">
-              <div class="buzz-button">
+              <div id="buzz-button">
                 BUZZ!
               </div>
               <div class="scrollable" id="chat-s1.1">
@@ -122,10 +124,22 @@
               </div>
             </div>
             <div class="clue-wrapper">
-              <div id="clue0" class="q question-inactive">Next!</div>
-              <div id="clue1" class="q question-inactive">&nbsp;</div>
-              <div id="clue2" class="q question-inactive">&nbsp;</div>
-              <div id="clue3" class="q question-inactive">&nbsp;</div>
+              <div id="clue1" class="clue-inactive">
+                  <div class="clue-face front">?</div>
+                  <div class="clue-face back">TEST</div>
+              </div>
+              <div id="clue2" class="clue-inactive">
+                  <div class="clue-face front">?</div>
+                  <div class="clue-face back">TEST</div>
+              </div>
+              <div id="clue3" class="clue-inactive">
+                  <div class="clue-face front">?</div>
+                  <div class="clue-face back">TEST</div>
+              </div>
+              <div id="clue4" class="clue-inactive">
+                  <div class="clue-face front">?</div>
+                  <div class="clue-face back">TEST</div>
+              </div>
             </div>
           </div>
         </div>
@@ -135,6 +149,16 @@
           ROUND 2
         </div>
 
+      </div>
+    </div>
+
+    <div id="state1.2" class="state-cont floating" style='display:none'>
+      <div class="box">
+        <h1> Enter your Answer: </h1>
+        <div class="form-inner">
+          <input type="text"/>
+          <input type="button" value="Submit"/>
+        </div>
       </div>
     </div>
 

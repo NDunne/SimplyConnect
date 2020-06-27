@@ -61,16 +61,16 @@ body {
   margin: 0 5%;
   top: 50px;
 }
+.container h1,
+h2 {
+  text-align: center;
+  margin: 0 auto;
+}
 .container {
   width: 100%;
   margin: 0;
   padding: 10px;
   padding-bottom: 0;
-}
-.container h1,
-h2 {
-  text-align: center;
-  margin: 0 auto;
 }
 .container h1 {
   font-size: 5vw;
@@ -84,7 +84,7 @@ h2 {
 }
 .container p {
   text-align: center;
-  font-size: 3.5vw;
+  font-size: 4vw;
   line-height: 6vw;
 }
 .bigText {
@@ -96,6 +96,7 @@ h2 {
 }
 .form-inner {
   display: flex;
+  flex-wrap: wrap;
   text-align: center;
   align-items: center;
   justify-content: center;
@@ -129,17 +130,32 @@ h2 {
   height: 8vw;
 }
 #teamsTab {
-  width: 75%;
+  width: 90%;
   margin: 0 auto;
+  table-layout: fixed;
+}
+#teamsTab tr td {
+  height: 10vw;
+}
+#teamsTab td,
+#teamsTab th {
+  text-align: left;
+  width: 35%;
+}
+#teamsTab td:nth-child(2),
+#teamsTab th:nth-child(2) {
+  width: 30%;
+  text-align: center;
+}
+#teamsTab td:nth-child(3),
+#teamsTab th:nth-child(3) {
+  text-align: right;
 }
 .pad {
   margin-bottom: 3vw;
 }
-#teamsTab tr td {
-  height: 6vw;
-}
-#teamsTab > tbody > tr > :nth-child(2) {
-  text-align: right;
+#makeLeader {
+  font-size: 4vw;
 }
 /* Round CSS */
 #game-started {
@@ -167,7 +183,6 @@ h2 {
   background: #FFF;
   border-radius: 5px;
 }
-/* Round Body */
 .round-body {
   display: flex;
   flex-direction: column;
@@ -181,6 +196,29 @@ h2 {
   margin-bottom: 0;
   margin-top: 5px;
 }
+.floating {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 10;
+  position: absolute;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  width: 100vw;
+}
+.floating .box {
+  width: 90%;
+  height: 25vh;
+  background: #FFF;
+  border: 1px #000 solid;
+  margin: auto;
+  margin-top: 50px;
+}
+.floating .box h1 {
+  font-size: larger;
+  font-weight: bolder;
+  text-align: center;
+}
 .scale-height-big {
   font-size: 4vh;
 }
@@ -188,21 +226,23 @@ h2 {
   font-size: 3vh;
 }
 .scale-height-small {
-  font-size: 2.5vh;
+  font-size: 2vh;
 }
 .wrapper {
   flex: 1 1 auto;
   display: flex;
   align-items: stretch;
   text-align: center;
-  min-height: 300px;
 }
-.end-wrapper {
+.name {
   flex: 1 1 auto;
   display: flex;
-  align-items: stretch;
-  text-align: center;
-  min-height: 300px;
+  font-size: 4vw;
+}
+.name-end {
+  flex: 1 1 auto;
+  display: flex;
+  font-size: 4vw;
   justify-content: flex-end;
 }
 .q-wrapper {
@@ -210,7 +250,6 @@ h2 {
   display: flex;
   align-items: stretch;
   text-align: center;
-  min-height: 300px;
   flex-wrap: wrap;
   justify-content: space-around;
   align-content: stretch;
@@ -221,7 +260,6 @@ h2 {
   display: flex;
   align-items: stretch;
   text-align: center;
-  min-height: 300px;
   flex-flow: column wrap;
   justify-content: start;
   max-width: 54vw;
@@ -231,7 +269,6 @@ h2 {
   display: flex;
   align-items: stretch;
   text-align: center;
-  min-height: 300px;
   flex-flow: column wrap;
   justify-content: start;
   max-width: 54vw;
@@ -244,86 +281,221 @@ h2 {
   display: flex;
   align-items: stretch;
   text-align: center;
-  min-height: 300px;
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
   padding-top: 5px;
 }
-.circle.nomargin {
+.icon {
+  height: 4vw;
+  width: 4vw;
   margin-top: 1%;
 }
-.circle {
+.icon.circle {
   border-radius: 50%;
-  background: #2bda2b;
-  width: 10%;
-  margin-top: 3%;
 }
-.circle.smaller {
-  margin: 3%;
-  width: 5%;
+.icon.crown {
+  -webkit-clip-path: polygon(0% 100%, 0% 0%, 33% 50%, 50% 0%, 66% 50%, 100% 0%, 100% 100%);
+  clip-path: polygon(0% 100%, 0% 0%, 33% 50%, 50% 0%, 66% 50%, 100% 0%, 100% 100%);
+}
+.icon.smaller {
+  width: 3vw;
+  height: 3vw;
+  margin-right: 1vw;
+}
+.icon.nomargin {
+  margin-top: 0;
 }
 .question {
   flex: 1 1 auto;
   border: solid 1px #3a1759;
   border-radius: 5px;
   width: 30vw;
-  margin: 8px 16px;
+  margin: 8px;
+  margin-right: 0;
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: larger;
+  box-shadow: none;
+}
+.active {
+  background: #d2c3de;
+  flex: 1 1 auto;
+  border: solid 1px #3a1759;
+  border-radius: 5px;
+  width: 30vw;
+  margin: 8px;
+  margin-right: 0;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: larger;
+  box-shadow: none;
+}
+.active:active {
+  background: #e2d3ee;
+  box-shadow: 0 0 8px #888888;
 }
 .question-active {
-  background: #e2d3ee;
+  background: #d2c3de;
   flex: 1 1 auto;
   border: solid 1px #3a1759;
   border-radius: 5px;
   width: 30vw;
-  margin: 8px 16px;
+  margin: 8px;
+  margin-right: 0;
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: larger;
+  box-shadow: none;
 }
 .question-active:active {
-  background: #d2b3ee;
+  background: #e2d3ee;
+  box-shadow: 0 0 8px #888888;
+}
+.inactive {
+  background: #a397ac;
 }
 .question-inactive {
-  background: #a397ac;
-  border-width: 0px;
   flex: 1 1 auto;
   border: solid 1px #3a1759;
   border-radius: 5px;
   width: 30vw;
-  margin: 8px 16px;
+  margin: 8px;
+  margin-right: 0;
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: larger;
+  box-shadow: none;
+  background: #a397ac;
+}
+.selected {
+  box-shadow: 0 0 8px #888888;
 }
 .question-selected {
   flex: 1 1 auto;
   border: solid 1px #3a1759;
   border-radius: 5px;
   width: 30vw;
-  margin: 8px 16px;
+  margin: 8px;
+  margin-right: 0;
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
-  border-width: 2px;
-  margin: 7px 15px;
+  font-size: larger;
+  box-shadow: none;
+  box-shadow: 0 0 8px #888888;
 }
-.buzz-button {
+.clue {
+  flex: 1 1 auto;
+  border: solid 1px #3a1759;
+  border-radius: 5px;
+  width: 30vw;
+  margin: 8px;
+  margin-right: 0;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: larger;
+  box-shadow: none;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+  perspective: 600px;
+}
+.clue-active {
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+  perspective: 600px;
+  background: #d2c3de;
+  flex: 1 1 auto;
+  border: solid 1px #3a1759;
+  border-radius: 5px;
+  width: 30vw;
+  margin: 8px;
+  margin-right: 0;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: larger;
+  box-shadow: none;
+}
+.clue-active:active {
+  background: #e2d3ee;
+  box-shadow: 0 0 8px #888888;
+}
+.clue-inactive {
+  flex: 1 1 auto;
+  border: solid 1px #3a1759;
+  border-radius: 5px;
+  width: 30vw;
+  margin: 8px;
+  margin-right: 0;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: larger;
+  box-shadow: none;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+  perspective: 600px;
+  background: #a397ac;
+}
+.clue-face {
+  position: absolute;
+  width: 100%;
+  margin: auto;
+  backface-visibility: hidden;
+  padding: 5px;
+}
+.clue-face.back {
+  transform: rotateY(180deg);
+}
+.clue-flipped {
+  flex: 1 1 auto;
+  border: solid 1px #3a1759;
+  border-radius: 5px;
+  width: 30vw;
+  margin: 8px;
+  margin-right: 0;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: larger;
+  box-shadow: none;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+  perspective: 600px;
+  font-size: smaller;
+  background: #FFFFFF;
+  transform: rotateY(180deg);
+}
+#buzz-button {
   border: solid 1px #3a1759;
   border-radius: 5px;
   text-align: center;
   margin: 10px 7.5%;
   font-size: larger;
   width: 85%;
-  background: #e04646;
+  background: #e75d5d;
   flex: 0 1 auto;
+  padding: 5px 0;
+  visibility: hidden;
+}
+#buzz-button:active {
+  background: #e66d6d;
+  box-shadow: 0 0 8px #888888;
 }
 .smaller {
   font-size: smaller;
@@ -332,7 +504,6 @@ h2 {
   width: 95%;
 }
 .scrollable {
-  font-size: smaller;
   flex-grow: 1;
   width: 93%;
   overflow: scroll;
@@ -349,10 +520,12 @@ h2 {
 }
 .msg {
   display: flex;
+  font-size: 4vw;
 }
 .msgcontent {
   padding-left: 4px;
   word-break: break-word;
+  max-width: 25vw;
 }
 #sendbox {
   text-align: left;

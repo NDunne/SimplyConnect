@@ -10,6 +10,9 @@ $(function() {
   var loggedIn = false;
   var team = 0;
   var displayName = "";
+  var isLeader = false;
+
+  var ticker;
 
   doResize();
 
@@ -23,8 +26,7 @@ $(function() {
     var cw = $('.circle').width();
     $('.circle').css({'height':cw+'px'});
 
-    console.log($(window).innerHeight());
-
+    //If keyboard shrinks view window hide certain elements
     if(( window.innerHeight/screen.availHeight)*100 < 60)
     {
         $('.keyboard-hide').css({display:"none"})
@@ -35,12 +37,26 @@ $(function() {
     }
   }
 
+  //Resize listener
   $( window ).resize(function() {
     doResize();
   });
 
+  jQuery.fn.swapWith = function(to) {
+    return this.each(function() {
+        var copy_to = $(to).clone(true);
+        var copy_from = $(this).clone(true);
+        $(to).replaceWith(copy_from);
+        $(this).replaceWith(copy_to);
+    });
+  };
+
+  console.log(last_doc);
+
+  //Game document updated
   function gameUpdated(doc)
   {
+    console.log("Game Updated");
     if (doc.exists)
     //Updated game state recieved
     {
@@ -111,25 +127,59 @@ $(function() {
 
             $("#helper-s1").text("Other team is choosing...");
           }
+
+          last_doc = doc.data();
         });
       }
-      else if (last_doc.state == 1.1)
+      else if (last_doc.state == 1.1 || last_doc.state == 1.2)
       {
         //state 1 - choice of question
         until(_ => team != 0).then(function() {
+
+          // Show visible clues
+          for (var i=1; i <= new_doc.clues; i++)
+          {
+            $('#clue' + i).addClass("clue-flipped").find(".back").text("CLUE GOES HERE");
+          }
 
           // It's my turn
           if ( (new_doc.turn % 2  && team == 1) ||
              (!(new_doc.turn % 2) && team == 2))
           {
-            $('#' + $.escapeSelector("helper-s1.1")).text("Click first clue to start time");
-            $('#' + $.escapeSelector("helper-s1.1-msgs")).text("Discuss your answer, buzz when ready.");
+            var helptext = (new_doc.clues) ? "Buzz when ready!" : "Click first clue to start time"
+            $('#' + $.escapeSelector("helper-s1.1")).text(helptext);
+            $('#' + $.escapeSelector("helper-s1.1-msgs")).text("Discuss your answer");
+            //Enable next clue
+            $('#clue' + (new_doc.clues + 1)).removeClass("clue-inactive").addClass("clue-active");
+            $('#clue' + (new_doc.clues + 1)).find(".front").text("Next")
+            //Show Buzz button
+            $('#buzz-button').css("visibility","visible");
           }
           // It's not my turn
           else
           {
             $('#' + $.escapeSelector("helper-s1.1")).text("Answer Correctly for a Bonus Point");
             $('#' + $.escapeSelector("helper-s1.1-msgs")).text("Discuss your bonus point answer");
+          }
+
+          console.log(last_doc.timer);
+          console.log(new_doc.timer);
+
+          //Timer started
+          if ((last_doc.timer == null || !(last_doc.timer.running)) && new_doc.timer.running)
+          {
+            ticker = window.setInterval(function(){
+              console.log("TICK");
+              var time = 45 - (firebase.firestore.Timestamp.now().seconds - new_doc.timer.start);
+              $('#timer').find('h2').text(("0" +  Math.max(0, time)).slice(-2));
+              if (time < 0){
+                db.collection("Games").doc(gameID).update({
+                  "timer.running": false,
+                  state: 1.2
+                });
+              }
+
+            }, 1000);
           }
 
           //Listener: Chat Messages
@@ -143,13 +193,12 @@ $(function() {
               {
 
                 var h = $("#" + $.escapeSelector("chat-s1.1")).height();
-                console.log(h);
                 doc.data().msgs.forEach(msg => {
 
                   $("#messages").append(`
                     <div class="msg">
-                      <div class="circle smaller" style="background: ` + msg.col + `"></div>
-                      <div class="msgname">`+ msg.sender + `: </div>
+                      <div class="icon ` + msg.shape + ` smaller" style="background: ` + msg.col + `"></div>
+                      <div class="msgname">` + msg.sender + `: </div>
                       <div class="msgcontent">
                       ` + msg.content + `
                       </div>
@@ -159,10 +208,11 @@ $(function() {
                 $("#" + $.escapeSelector("chat-s1.1")).height(h);
               }
             })
+
+
+            last_doc = doc.data();
         });
       }
-
-      last_doc = doc.data();
     }
     else
     //Error State
@@ -194,6 +244,12 @@ $(function() {
 
     if (newState == 1.1) $('#timer').show();
 
+    if (newState == 1.2)
+    {
+        $('#state' + $.escapeSelector(1.1)).show();
+      clearInterval(ticker);
+    }
+
     //Show div based on state
     $('#state' + $.escapeSelector(newState)).show();
 
@@ -209,19 +265,21 @@ $(function() {
     })
 
   //Make changes to firestore
-  function updateFirestoreUser(uid, dname, newTeam=1, ready=0)
+  function updateFirestoreUser(uid, dname, newTeam=1, ready=0, leader=false)
   {
     db.collection("Users").doc(uid).set({
       DisplayName: dname,
       Game: gameID,
       Team: newTeam,
-      Ready: ready
+      Ready: ready,
+      Leader: leader
     })
     .catch(function(err) {
       console.log("Failed!" + err);
     });
 
     updateDname(dname);
+    isLeader = leader;
     team = newTeam;
   }
 
@@ -250,7 +308,7 @@ $(function() {
         {
           // console.log("User for this game");
           //Unready if was ready before
-          updateFirestoreUser(uid, record.data().DisplayName, record.data().Team, 0, record.data().Guess);
+          updateFirestoreUser(uid, record.data().DisplayName, record.data().Team, 0, record.data().Leader);
         }
         else
         {
@@ -297,6 +355,17 @@ $(function() {
     return ('#' + (uid.replace(/[^0-9A-F]/g, "") + "000000").substring(0,6));
   }
 
+  function batchUpdateLeader(batch, uid, value)
+  {
+    var user = firebase.auth().currentUser;
+
+    if (user.uid == uid) isLeader = value;
+
+    batch.update(db.collection("Users").doc(uid),
+                 { Leader: value }
+                );
+  }
+
   function updateTeams(querySnapshot)
   {
     var t1 = [];
@@ -313,6 +382,8 @@ $(function() {
     }
 
     var readyCount = 0;
+
+    var batch = db.batch();
 
     //For each User in game
     querySnapshot.forEach(function(doc) {
@@ -332,7 +403,22 @@ $(function() {
       //Add to list based on team
       if (doc.data().Team == 1)
       {
-        t1.push('<div class="wrapper"><div class="circle" style="background: ' + col + '"></div><div>&nbsp;' + dname + tick + '</div></div>');
+        var shape = `circle`;
+        if (!(t1.length))
+        {
+          shape = `crown`;
+          batchUpdateLeader(batch, doc.id, true);
+        }
+        else
+        {
+          batchUpdateLeader(batch, doc.id, false);
+        }
+        t1.push(
+        `<div id="` + doc.id + `" class="name">
+          <div class="icon ` + shape + `" style="background: ` + col + `"></div>
+          <div>&nbsp;` + dname + tick + `</div>
+        </div>`
+        );
         if (doc.id == user.uid)
         {
           //enable only other team's button
@@ -342,7 +428,22 @@ $(function() {
       }
       else
       {
-        t2.push('<div class="end-wrapper"><div>' + tick + dname + '&nbsp;</div><div class="circle" style="background: ' + col + '"></div></div>');
+        var shape = `circle`;
+        if (!(t2.length))
+        {
+          shape = `crown`;
+          batchUpdateLeader(batch, doc.id, true);
+        }
+        else
+        {
+          batchUpdateLeader(batch, doc.id, false);
+        }
+        t2.push(
+        `<div id="` + doc.id + `" class="name-end">
+          <div>` + tick + dname + `&nbsp;</div>
+          <div class="icon ` + shape + `" style="background: ` + col + `"></div>
+        </div>`
+        );
         if (doc.id == user.uid)
         {
           $('#joinT1').prop('disabled', false);
@@ -350,6 +451,8 @@ $(function() {
         }
       }
     });
+
+    batch.commit();
 
     if (readyCount == querySnapshot.size &&
         t1.length > 0                    &&
@@ -377,15 +480,14 @@ $(function() {
       if (i < t2.length) n2 = t2[i];
 
       //Add row with names
-      $('#teamsTab').append('<tr><td>'+ n1 + '</td><td>' + n2 + '</td></tr>');
+      $('#teamsTab').append('<tr><td>'+ n1 + '</td><td></td><td>' + n2 + '</td></tr>');
     }
-
-    var cw = $('.circle').width();
-    $('.circle').css({'height':cw+'px'});
   }
 
   //Observer for query of users in Game
-  db.collection("Users").where("Game","==",gameID)
+  db.collection("Users")
+    .orderBy('Leader', 'desc')
+    .where("Game","==",gameID)
     .onSnapshot(function(querySnapshot) {
 
       if (last_doc.state == 0)
@@ -432,14 +534,16 @@ $(function() {
   $('#joinT1').click(function() {
     var user = firebase.auth().currentUser;
     db.collection("Users").doc(user.uid).update({
-      Team: 1
+      Team: 1,
+      Leader: false
     });
     team = 1;
   });
   $('#joinT2').click(function() {
     var user = firebase.auth().currentUser;
     db.collection("Users").doc(user.uid).update({
-      Team: 2
+      Team: 2,
+      Leader: false
     });
     team = 2;
   });
@@ -463,6 +567,24 @@ $(function() {
       turn: turn,
       state: 1
     });
+  });
+
+  $('#makeLeader').click(function() {
+    var users = db.collection("Users");
+
+    users.where('Team','==',team)
+         .where('Leader','==', true)
+         .get()
+         .then(response => {
+           var batch = db.batch();
+           response.docs.forEach((doc) => {
+             batchUpdateLeader(batch, doc.id, false);
+           })
+           var user = firebase.auth().currentUser;
+           batchUpdateLeader(batch, user.uid, true);
+
+           batch.commit();
+         });
   });
 
   //------------end------------//
@@ -497,33 +619,60 @@ $(function() {
   //------------end------------//
   //----------State 1.1--------//
 
+  $(document).on('click', '.clue-active', function() {
+    $(this).removeClass('clue-active').addClass('clue-inactive');
+    db.collection("Games").doc(gameID)
+      .update({
+        choices: last_doc.choices
+      });
 
+    db.collection("Games").doc(gameID).update({
+      clues: firebase.firestore.FieldValue.increment(1)
+    });
+  });
+
+  $(document).on('click', '#clue1.clue-active', function() {
+    console.log(firebase.firestore.Timestamp.now());
+    db.collection("Games").doc(gameID).update({
+      timer: {
+        running: true,
+        start: firebase.firestore.Timestamp.now().seconds
+      }
+    });
+
+
+  });
+
+  $(document).on('click', '#buzz-button', function() {
+    db.collection("Games").doc(gameID).update({
+      "timer.running": false,
+      state: 1.2
+    });
+  });
 
   //------------end------------//
   //---------Key-Listener------//
 
   $(document).keyup(function(event) {
     if ($("#sendbox").is(":focus") && event.key == "Enter") {
-      console.log($("#sendbox").val());
 
       var user = firebase.auth().currentUser;
 
-      console.log(user.uid);
-
-      console.log(displayName);
+      console.log(isLeader);
 
       db.collection("Chats").doc(gameID + "_" + team)
         .set({
-          msgs: firebase.firestore.FieldValue.arrayUnion({
-            col: getColour(user.uid),
-            sender: displayName,
-            content: " " + $("#sendbox").val()
-          })
-        },
-        {
-          merge: true
-        }
-      );
+            msgs: firebase.firestore.FieldValue.arrayUnion({
+              col: getColour(user.uid),
+              sender: displayName,
+              content: " " + $("#sendbox").val(),
+              shape: (isLeader)? "crown":"circle"
+            })
+          },
+          {
+            merge: true
+          }
+        );
 
       $("#sendbox").val("");
     }

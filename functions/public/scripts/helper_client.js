@@ -6,7 +6,12 @@ async function insertNewGame (gameCode) {
     test: true,    //Debug info
     choices: [1, 1, 1, 1, 1, 1], //initialise all available
     selected: -1,
-    questions: []
+    questions: [],
+    clues: 0,
+    timer: {
+      running: false,
+      start: 0
+    }
   })
   .then(function() {console.log("Document write success!");})
   .catch(function(err) {console.error("Error writing document: ", error);});

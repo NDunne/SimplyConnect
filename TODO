@@ -1,6 +1,8 @@
 - Disallow new players if 10
-  - Disallow new players if not in Lobby 
+  - Disallow new players if not in Lobby
 
 - Red/Blue teams
   - Indicate player's teams
   - Indicate team's turn
+
+- 1.2 refresh clear 1.1
