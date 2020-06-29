@@ -69,17 +69,44 @@ async function deleteQueryBatch(db, query, resolve) {
   });
 }
 
+function deleteAllUsers() {
+  // List batch of users, 1000 at a time.
+  admin.auth().listUsers()
+    .then(function(listUsersResult) {
+
+      uid_list = [];
+
+      listUsersResult.users.forEach(function(userRecord) {
+        uid_list.push(userRecord.uid);
+      });
+      admin.auth().deleteUsers(uid_list)
+      .then(function(deleteUsersResult) {
+        console.log('Successfully deleted ' + deleteUsersResult.successCount + ' Users');
+        console.log('Failed to delete ' +  deleteUsersResult.failureCount + ' Users');
+        deleteUsersResult.errors.forEach(function(err) {
+          console.log(err.error.toJSON());
+        });
+      })
+      .catch(function(error) {
+        console.log('Error deleting users:', error);
+      });
+    })
+    .catch(function(error) {
+      console.log('Error listing users:', error);
+    });
+}
+
 async function clearTestData(){
 
  console.log("Clearing test data");
  var collections = ["Chats", "Games", "Users"];
   collections.forEach((coll) => {
     deleteCollection(db,coll).then( function() {
-      console.log("Deleted " + coll);
+      console.log("Deleted " + coll + " table");
     });
   });
 
-
+  deleteAllUsers();
 }
 
 app.get('/',async (req,res) => {
@@ -95,10 +122,5 @@ app.use('/game', game);
 app.all('*', function(req, res) {
   res.redirect("/");
 });
-
-// app.post('/insert_data',async (req,res) => {
-//   var insert = await insertFormData(req);
-//   res.sendStatus(200);
-// });
 
 exports.app = functions.https.onRequest(app);

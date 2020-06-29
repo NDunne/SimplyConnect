@@ -11,6 +11,18 @@ async function insertNewGame (gameCode) {
     timer: {
       running: false,
       start: 0
+    },
+    answers: {
+      team1: "",
+      votes1: {
+        from1: 0,
+        from2: 0
+      },
+      team2: "",
+      votes2: {
+        from1: 0,
+        from2: 0
+      },
     }
   })
   .then(function() {console.log("Document write success!");})

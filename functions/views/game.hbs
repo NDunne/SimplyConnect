@@ -153,11 +153,45 @@
     </div>
 
     <div id="state1.2" class="state-cont floating" style='display:none'>
-      <div class="box">
+      <div id="AnswerBox1.2" class="box" style='display:none'>
         <h1> Enter your Answer: </h1>
-        <div class="form-inner">
-          <input type="text"/>
-          <input type="button" value="Submit"/>
+        <div class="form-inner pad-bottom">
+          <input id="answerBox" type="text"/>
+          <input id="submitAnswer" type="button" value="Submit"/>
+        </div>
+      </div>
+      <div id="WaitBox1.2" class="box" style='display:none'>
+        <h1> Waiting for Others to Answer... </h1>
+      </div>
+      <div id="VoteBox1.2" class="box" style='display:none'>
+        <h1> Select all correct answers </h1>
+        <div class="solution">
+          <div class="solution-inner">
+            &nbsp;Lesser known Chemical elements with numbers greater than 5&nbsp;
+          </div>
+        </div>
+        <div class="a-Wrapper">
+          <div id="answer_team1" class="answer wrong"></div>
+          <div id="answer_team2" class="answer wrong"></div>
+        </div>
+        <div class="c-wrapper">
+          <div id="confirmVote" class="roundborder"> Confirm </div>
+          <div id="skipVote" class="roundborder"> Skip </div>
+        </div>
+      </div>
+      <div id="ResultsBox1.2" class="box" style='display:none'>
+        <h1> Results </h1>
+        <div class="solution">
+          <div class="solution-inner">
+            &nbsp;Lesser known Chemical elements with numbers greater than 5&nbsp;
+          </div>
+        </div>
+        <div class="a-Wrapper">
+          <div id="result_team1" class="answer"></div>
+          <div id="result_team2" class="answer"></div>
+        </div>
+        <div class="c-wrapper">
+          <div id="nextQ" class="roundborder"> Continue </div>
         </div>
       </div>
     </div>

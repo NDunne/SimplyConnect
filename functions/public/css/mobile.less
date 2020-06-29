@@ -107,6 +107,11 @@ body {
   justify-content: center;
 }
 
+.pad-bottom{
+  padding-bottom: 15px;
+  height: 3em;
+}
+
 .button-wrapper{
   text-align: center;
   width: 60%;
@@ -136,7 +141,7 @@ body {
 }
 
 #joinid{
-  height: 8vw;
+  height: 12vw;
 }
 
 #teamsTab{
@@ -228,17 +233,19 @@ body {
 
   .box{
     width: 90%;
-    height: 25vh;
+    // height: 25vh;
     background: #FFF;
     border: 1px #000 solid;
     margin: auto;
     margin-top: 50px;
 
     h1{
-      font-size: larger;
+      .scale-height-med();
       font-weight: bolder;
       text-align: center;
-    }
+      margin: 10px;
+      margin-bottom: 5px;
+    };
   }
 }
 
@@ -283,6 +290,16 @@ body {
   align-content: stretch;
 
   padding: 10px;
+}
+
+.a-wrapper{
+  .wrapper();
+  padding: 0 10px;
+}
+
+.c-wrapper{
+  .wrapper();
+  justify-content: space-around;
 }
 
 .col-wrapper{
@@ -350,7 +367,7 @@ body {
   .question();
   &:active {
     background: #e2d3ee;
-    box-shadow: 0 0 8px #888888;
+    box-shadow: 0 0 15px #888888;
   }
 }
 
@@ -414,6 +431,41 @@ body {
   transform: rotateY( 180deg );
 }
 
+.answer{
+  .question();
+  margin-right: 8px;
+  font-size: 4vw;
+  padding: 5px;
+
+  &.wrong{
+    background: #ee9b9b;
+  }
+
+  &.right{
+    background: #9bee9b;
+    box-shadow: 0 0 8px #888888;
+  }
+  &.split{
+    background: linear-gradient(90deg, #9bee9b 30%, #ee9b9b 0);
+  }
+}
+
+.solution{
+  background: #3a1759;
+  overflow-x: scroll;
+  text-align: center;
+  max-height: 1.7em;
+  margin: 5px 0;
+
+  .solution-inner{
+    line-height: 1.7em;
+    font-size: 16px;
+    color: #FFF;
+    font-weight: bolder;
+    white-space: nowrap;
+  }
+}
+
 #buzz-button{
   border: solid 1px #3a1759;
   border-radius: 5px;
@@ -421,13 +473,17 @@ body {
   margin: 10px 7.5%;
   font-size: larger;
   width: 85%;
-  background: #e75d5d;
+  background: #967b7b;
   flex: 0 1 auto;
   padding: 5px 0;
   visibility: hidden;
-  &:active{
-    background: #e66d6d;
-    box-shadow: 0 0 8px #888888;
+
+  &.enabled {
+    background: #e75d5d;
+    &:active{
+      background: #e66d6d;
+      box-shadow: 0 0 8px #888888;
+    }
   }
 }
 
@@ -475,4 +531,17 @@ body {
   text-align: left;
   margin: 10px;
   width: 90%;
+}
+
+.roundborder{
+  border-radius: 5px;
+  border: 1px #000 solid;
+  padding: 2px;
+  // flex: 1 1 auto;
+  margin: 5px;
+  width: 45%;
+
+  &:active{
+    background: #c7c7c7;
+  }
 }

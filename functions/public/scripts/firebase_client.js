@@ -11,6 +11,7 @@ $(function() {
   var team = 0;
   var displayName = "";
   var isLeader = false;
+  var g_voted = false;
 
   var ticker;
 
@@ -37,11 +38,24 @@ $(function() {
     }
   }
 
-  //Resize listener
+  // Resize listener
   $( window ).resize(function() {
     doResize();
   });
 
+  // buzz or time out
+  function endQuestion()
+  {
+    var user = firebase.auth().currentUser;
+
+    db.collection("Games").doc(gameID).update({
+      "timer.running": false,
+      state: 1.2,
+      buzzer: user.uid
+    });
+  }
+
+  //Swap too DOM elements
   jQuery.fn.swapWith = function(to) {
     return this.each(function() {
         var copy_to = $(to).clone(true);
@@ -52,6 +66,30 @@ $(function() {
   };
 
   console.log(last_doc);
+
+  function colourVotes()
+  {
+
+    var answers = new_doc.answers;
+    console.log(answers);
+
+    var t1_total = answers.votes1.from1 + answers.votes2.from1;
+    var t2_total = answers.votes1.from2 + answers.votes2.from2;
+
+    var teams_voted = !!t1_total + !!t2_total;
+    var multiplier = (teams_voted)? (100/teams_voted):0;
+
+
+    var t1_votes = multiplier * (( (t1_total) ? (answers.votes1.from1/t1_total):0) + ((t2_total) ? (answers.votes1.from2/t2_total):0));
+    var t2_votes = multiplier * (( (t1_total) ? (answers.votes2.from1/t1_total):0) + ((t2_total) ? (answers.votes2.from2/t2_total):0));
+
+    console.log(t1_votes + " " + t2_votes);
+
+    $('#result_team1').css("background","linear-gradient(90deg, #9bee9b " + t1_votes +"%, #ee9b9b 0)");
+    $('#result_team2').css("background","linear-gradient(90deg, #9bee9b " + t2_votes +"%, #ee9b9b 0)");
+
+  }
+
 
   //Game document updated
   function gameUpdated(doc)
@@ -146,7 +184,17 @@ $(function() {
           if ( (new_doc.turn % 2  && team == 1) ||
              (!(new_doc.turn % 2) && team == 2))
           {
-            var helptext = (new_doc.clues) ? "Buzz when ready!" : "Click first clue to start time"
+            var helptext;
+            if(new_doc.clues)
+            {
+              helptext = "Buzz when ready!";
+              $('#buzz-button').addClass('enabled');
+            }
+            else
+            {
+              helptext = "Click first clue to start time";
+              $('#buzz-button').removeClass('enabled');
+            }
             $('#' + $.escapeSelector("helper-s1.1")).text(helptext);
             $('#' + $.escapeSelector("helper-s1.1-msgs")).text("Discuss your answer");
             //Enable next clue
@@ -173,10 +221,7 @@ $(function() {
               var time = 45 - (firebase.firestore.Timestamp.now().seconds - new_doc.timer.start);
               $('#timer').find('h2').text(("0" +  Math.max(0, time)).slice(-2));
               if (time < 0){
-                db.collection("Games").doc(gameID).update({
-                  "timer.running": false,
-                  state: 1.2
-                });
+                endQuestion();
               }
 
             }, 1000);
@@ -209,6 +254,31 @@ $(function() {
               }
             })
 
+            if (last_doc.state == 1.2)
+            {
+              $('#answer_team1').text(new_doc.answers.team1);
+              $('#result_team1').text(new_doc.answers.team1);
+              $('#answer_team2').text(new_doc.answers.team2);
+              $('#result_team2').text(new_doc.answers.team2);
+
+              if (new_doc.answers.team1 != "" && new_doc.answers.team2 != "")
+              {
+                if (!g_voted)
+                {
+                  $('.box').hide();
+                  $('#' + $.escapeSelector("VoteBox1.2")).show();
+                }
+                else
+                {
+                  colourVotes();
+                }
+              }
+              else if (new_doc.answers["team" + team] != "")
+              {
+                $('#' + $.escapeSelector('WaitBox1.2')).show();
+                $('#' + $.escapeSelector("AnswerBox1.2")).hide();
+              }
+            }
 
             last_doc = doc.data();
         });
@@ -246,8 +316,32 @@ $(function() {
 
     if (newState == 1.2)
     {
-        $('#state' + $.escapeSelector(1.1)).show();
+      $('#state' + $.escapeSelector(1.1)).show();
       clearInterval(ticker);
+
+      //state 1 - choice of question
+      until(_ => team != 0).then(function() {
+        $('.box').hide();
+        var user = firebase.auth().currentUser;
+        if (g_voted)
+        {
+          $('#' + $.escapeSelector("ResultsBox1.2")).show();
+          colourVotes();
+        }
+        else
+        {
+          if (user.uid == new_doc.buzzer ||
+             (((!(new_doc.turn) % 2 && team == 1) || ((new_doc.turn % 2) && team == 2)) &&
+             isLeader))
+          {
+            $('#' + $.escapeSelector("AnswerBox1.2")).show();
+          }
+          else
+          {
+            $('#' + $.escapeSelector('WaitBox1.2')).show();
+          }
+        }
+      });
     }
 
     //Show div based on state
@@ -265,14 +359,15 @@ $(function() {
     })
 
   //Make changes to firestore
-  function updateFirestoreUser(uid, dname, newTeam=1, ready=0, leader=false)
+  function updateFirestoreUser(uid, dname, newTeam=1, ready=0, leader=false, voted=false)
   {
     db.collection("Users").doc(uid).set({
       DisplayName: dname,
       Game: gameID,
       Team: newTeam,
       Ready: ready,
-      Leader: leader
+      Leader: leader,
+      Voted: voted
     })
     .catch(function(err) {
       console.log("Failed!" + err);
@@ -308,7 +403,7 @@ $(function() {
         {
           // console.log("User for this game");
           //Unready if was ready before
-          updateFirestoreUser(uid, record.data().DisplayName, record.data().Team, 0, record.data().Leader);
+          updateFirestoreUser(uid, record.data().DisplayName, record.data().Team, 0, record.data().Leader, record.data().Voted);
         }
         else
         {
@@ -321,6 +416,21 @@ $(function() {
       {
         // console.log("User Record does not exist");
         updateFirestoreUser(uid, uid.substring(1,6));
+      }
+    });
+
+
+    db.collection("Users").doc(uid).onSnapshot(function(doc) {
+      if (doc.data().Voted)
+      {
+        g_voted = true;
+        $('#' + $.escapeSelector("VoteBox1.2")).hide();
+        $('#' + $.escapeSelector("ResultsBox1.2")).show();
+        colourVotes();
+      }
+      else
+      {
+        g_voted = false;
       }
     });
   }
@@ -632,22 +742,54 @@ $(function() {
   });
 
   $(document).on('click', '#clue1.clue-active', function() {
-    console.log(firebase.firestore.Timestamp.now());
     db.collection("Games").doc(gameID).update({
       timer: {
         running: true,
         start: firebase.firestore.Timestamp.now().seconds
       }
     });
-
-
   });
 
-  $(document).on('click', '#buzz-button', function() {
+  $(document).on('click', '#buzz-button.enabled', function() {
+    endQuestion();
+  });
+
+  //------------end------------//
+  //----------State 1.2--------//
+
+  $('#submitAnswer').click(function() {
+    var user = firebase.auth().currentUser;
     db.collection("Games").doc(gameID).update({
-      "timer.running": false,
-      state: 1.2
+      ['answers.team' + team]: $('#answerBox').val()
     });
+  });
+
+  $(document).on('click', '.answer.wrong, .answer.right', function() {
+    $(this).toggleClass('wrong').toggleClass('right');
+  });
+
+  $('#confirmVote').click(function() {
+    var btch = db.batch();
+
+    var gameRef = db.collection("Games").doc(gameID);
+    $('.answer.right').each(function(index) {
+      btch.update(gameRef, {["answers.votes" + ($(this).attr('id').slice(-1)) + ".from" + team]:firebase.firestore.FieldValue.increment(1)})
+      console.log();
+    });
+
+    var user = firebase.auth().currentUser;
+    btch.update(db.collection("Users").doc(user.uid), {Voted: true});
+
+    btch.commit();
+  });
+
+  $('#skipVote').click(function() {
+    var btch = db.batch();
+
+    var user = firebase.auth().currentUser;
+    btch.update(db.collection("Users").doc(user.uid), {Voted: true});
+
+    btch.commit();
   });
 
   //------------end------------//
