@@ -11,8 +11,6 @@ const db = admin.firestore();
 
 const deleter = require('./deleter');
 
-const cookieParser = require('cookie-parser');
-
 const app = express();
 
 app.engine('hbs',engines.handlebars);
@@ -22,7 +20,6 @@ app.set('views','./views');
 app.set('view engine', 'hbs');
 
 app.use(express.static(__dirname + '/public'));
-app.use(cookieParser());
 
 var game = require('./routes/game');
 var updateDB = require('./routes/updateDB');

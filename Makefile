@@ -2,7 +2,7 @@ LESSSOURCES := $(shell find * -type f -wholename "functions/public/css/*.less")
 
 CSSFILES := $(subst less,min.css, $(LESSSOURCES))
 
-JSSOURCES := $(shell find * -type f -wholename "functions/public/scripts/*.js")
+JSSOURCES := $(shell find * -type f -wholename "functions/public/scripts/*.js" | grep -v -e '.min')
 
 MINJSFILES := $(subst js,min.js, $(JSSOURCES))
 
@@ -25,3 +25,4 @@ minjs: $(MINJSFILES)
 
 clean:
 	rm functions/public/css/*.css
+	rm functions/public/scripts/*.min.js

@@ -15,7 +15,6 @@
     "bootstrap": "^4.5.0",
     "cheerio": "^1.0.0-rc.3",
     "consolidate": "^0.15.1",
-    "cookie-parser": "^1.4.5",
     "crypto": "^1.0.1",
     "express": "^4.17.1",
     "firebase": "^7.15.0",
@@ -24,7 +23,6 @@
     "firebase-functions": "^3.6.1",
     "handlebars": "^4.7.6",
     "minify": "^5.1.1",
-    "puppeteer": "^4.0.1",
     "request": "^2.88.2",
     "request-promise": "^4.2.5",
     "url-pattern": "^1.0.3"

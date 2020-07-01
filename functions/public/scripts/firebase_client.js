@@ -68,8 +68,6 @@ $(function() {
     });
   };
 
-  console.log(last_doc);
-
   function zeroDiv(x,y)
   {
       return ((y) ? (x/y):0);
@@ -91,11 +89,7 @@ $(function() {
 
   function colourVotes(answers)
   {
-    console.log(answers);
-
     votes = calcVotes(answers);
-
-    console.log(votes[0] + " " + votes[1]);
 
     $('#result_team1').css("background","linear-gradient(90deg, #9bee9b " + votes[0] +"%, #ee9b9b 0)");
     $('#result_team2').css("background","linear-gradient(90deg, #9bee9b " + votes[1] +"%, #ee9b9b 0)");
@@ -105,7 +99,6 @@ $(function() {
       .where("Game", "==", gameID);
 
     query.get().then(function(querySnapshot) {
-      console.log("size: " + querySnapshot.size);
       if (!querySnapshot.size)
       {
         $('#nextQ').show();
@@ -115,29 +108,28 @@ $(function() {
 
   function flashUpdate(elem, text)
   {
-
     if (elem.text() != text)
     {
       elem.text(text);
-      elem.css('color',"#00FF00");
+      elem.css('color',"9bee9b");
       setTimeout(function() {
         elem.css('color',"initial");
-      }, 50);
+      }, 80);
     }
   }
 
   //Game document updated
   function gameUpdated(doc)
   {
-    console.log("Game Updated");
+    // console.log("Game Updated");
     if (doc.exists)
     //Updated game state recieved
     {
       new_doc = doc.data();
-
-      console.log(last_doc);
-      console.log(new_doc);
-      console.log("");
+      //
+      // console.log(last_doc);
+      // console.log(new_doc);
+      // console.log("");
 
       //State Changed!
       if (last_doc == {}               ||
@@ -201,7 +193,6 @@ $(function() {
                   if (new_doc.choices[key] == 2)
                   {
                     $("#q"+key).addClass("question-selected")
-                    console.log("selected: " + key);
                   }
                 }
               }
@@ -217,7 +208,6 @@ $(function() {
               if (new_doc.choices[key] == 2)
               {
                 $("#q"+key).addClass("question-selected")
-                console.log("selected: " + key);
               }
             }
 
@@ -235,8 +225,6 @@ $(function() {
           //Actually state 1.2
           if (new_doc.state == 1.2)
           {
-            console.log("state 1.2");
-
             $('#answer_team1').text(new_doc.answers.team1);
             $('#result_team1').text(new_doc.answers.team1);
             $('#answer_team2').text(new_doc.answers.team2);
@@ -258,7 +246,6 @@ $(function() {
               }
               else
               {
-                console.log("recolour");
                 colourVotes(new_doc.answers);
               }
             }
@@ -296,7 +283,6 @@ $(function() {
 
           // Show visible clues
 
-          console.log("Clues: " + new_doc.clues);
           for (var i=1; i <= new_doc.clues; i++)
           {
             $('#clue' + i).addClass("clue-flipped").find(".back").text(new_doc.questions.round1[new_doc.selected]['clue' + i]);
@@ -333,14 +319,10 @@ $(function() {
             $('#buzz-button').css("visibility","hidden");
           }
 
-          console.log(last_doc.timer);
-          console.log(new_doc.timer);
-
           //Timer started
           if ((last_doc.timer == null || !(last_doc.timer.running)) && new_doc.timer.running)
           {
             ticker = window.setInterval(function(){
-              console.log("TICK");
               var time = 45 - (firebase.firestore.Timestamp.now().seconds - new_doc.timer.start);
               $('#timer').find('h2').text(("0" +  Math.max(0, time)).slice(-2));
               if (time < 0){
@@ -374,7 +356,7 @@ $(function() {
   //Update global and visible divs
   function updateState(new_doc)
   {
-    console.log("updateState");
+    // console.log("updateState");
     var newState = new_doc.state
 
     //Hide all state specific content
@@ -561,7 +543,7 @@ $(function() {
     db.collection("Users").doc(uid).onSnapshot(function(doc) {
       if (doc.exists && doc.data().Voted)
       {
-        console.log("Updated voted");
+        // console.log("Updated voted");
         g_voted = true;
         $('#' + $.escapeSelector("VoteBox1.2")).hide();
         $('#' + $.escapeSelector("ResultsBox1.2")).show();
@@ -597,7 +579,7 @@ $(function() {
 
   //Listener for Login
   firebase.auth().onAuthStateChanged(function(user) {
-    console.log("AUTH STATE CHANGED: " + user);
+    // console.log("AUTH STATE CHANGED: " + user);
     if (user) {
       handleLoggedInUser(user.uid);
     }
@@ -621,7 +603,7 @@ $(function() {
 
   function updateTeams(querySnapshot)
   {
-    console.log("updateTeams");
+    // console.log("updateTeams");
 
     var t1 = [];
     var t2 = [];
@@ -744,19 +726,12 @@ $(function() {
     .orderBy('Leader', 'desc')
     .where("Game","==",gameID)
     .onSnapshot(function(querySnapshot) {
-
-      console.log("ld: " + JSON.stringify(last_doc) + " " + (jQuery.isEmptyObject('state')));
-
       //Race condition
       until(_ => !(jQuery.isEmptyObject(last_doc))).then(function() {
-
-        console.log("ld: " + JSON.stringify(last_doc) + " " + (jQuery.isEmptyObject('state')));
-
         if (last_doc.state == 0)
         {
           updateTeams(querySnapshot);
         }
-
       });
     });
 
@@ -783,13 +758,9 @@ async function selectQuestions()
 
   qs = await Promise.all(qs);
 
-  console.log(qs);
-
   const letters = "ABCDEF";
 
   qs = qs.map(function(q) { return q.data().questions.text; });
-
-  console.log(qs);
 
   var r1 = shuffleArray(qs[0])
             .slice(0,6)
@@ -989,7 +960,6 @@ async function selectQuestions()
     var gameRef = db.collection("Games").doc(gameID);
     $('.answer.right').each(function(index) {
       b.update(gameRef, {["answers.votes" + team + ".for" + ($(this).attr('id').slice(-1))]:firebase.firestore.FieldValue.increment(1)})
-      console.log();
     });
 
     b.update(gameRef, {["answers.votes" + team + ".total"]:firebase.firestore.FieldValue.increment(1)})
@@ -1016,8 +986,6 @@ async function selectQuestions()
   $('#nextQ').click(function() {
 
     var votes = calcVotes(last_doc.answers);
-
-    console.log(votes);
 
     // Create a reference to the SF doc.
     var gameDocRef = db.collection("Games").doc(gameID);
@@ -1054,19 +1022,14 @@ async function selectQuestions()
         choices_map[gameDoc.data().selected] = 0;
 
         var sum = Object.values(choices_map).reduce((t, n) => t + n);
-        console.log("SUM" + sum);
         if (!sum)
         {
           //END GAME TODO
           transaction.update(gameDocRef, {state: 5});
         }
 
-        console.log("Clues: " + gameDoc.data().clues + " Score: " + gameDoc.data().score);
-
         var score1diff = (votes[0] >= 50)? ((!(gameDoc.data().turn % 2))? gameDoc.data().score : 1 ): 0;
         var score2diff = (votes[1] >= 50)? (  (gameDoc.data().turn % 2)? gameDoc.data().score : 1 ): 0;
-
-        console.log("scores: " + score1diff + " " + score2diff);
 
         transaction.update(gameDocRef, {
           clues: 0,
@@ -1090,8 +1053,6 @@ async function selectQuestions()
     if ($("#sendbox").is(":focus") && event.key == "Enter") {
 
       var user = firebase.auth().currentUser;
-
-      console.log(isLeader);
 
       db.collection("Chats").doc(gameID + "_" + team)
         .set({
