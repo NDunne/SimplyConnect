@@ -12,10 +12,10 @@
     <!-- <link rel="stylesheet" type="text/css" href="css/styles.css" /> -->
 
     <!-- Mobile CSS -->
-    <link rel="stylesheet" type="text/css" media="only screen and (max-device-width: 480px)" href="css/mobile.css" />
+    <link rel="stylesheet" type="text/css" media="only screen and (max-device-width: 480px)" href="css/mobile.min.css" />
 
     <!-- Browser CSS -->
-    <link rel="stylesheet" type="text/css" media="only screen and (min-device-width: 481px)" href="css/browser.css" />
+    <link rel="stylesheet" type="text/css" media="only screen and (min-device-width: 481px)" href="css/browser.min.css" />
 
   </head>
   <body>
@@ -32,7 +32,7 @@
       <div class="container state-cont" id="state-1" style='display:none'>
         <p><b>Game not Found!</b></p>
         <div class=button-wrapper>
-          <input id="home-but" class="btn btn-success btn-block bigText" value="Home">
+          <input class="home-but btn btn-success btn-block bigText" value="Home">
         </div>
       </div>
 
@@ -72,9 +72,9 @@
 
         <!-- Constant top of Question rounds -->
         <div class="head-wrapper container keyboard-hide">
-          <h2 class=round-head> ROUND 1 </h2>
+          <h2 id=round-head> ROUND 1 </h2>
           <!-- <button class="btn btn-secondary help-hover">?</button> -->
-          <h3 class=round-desc> See up to 4 clues, Find the connection! </h3>
+          <h3 id=round-desc> See up to 4 clues, Find the connection! </h3>
         </div>
         <div id="scores-div">
           <div class="team-score">
@@ -98,12 +98,12 @@
         <div id="state1" class="state-cont round-body" style='display:none'>
           <h3 id="helper-s1" class="keyboard-hide">&nbsp;</h3>
           <div class="q-wrapper">
-            <div id="q0" class="q question-inactive">A</div>
-            <div id="q1" class="q question-inactive">B</div>
-            <div id="q2" class="q question-inactive">C</div>
-            <div id="q3" class="q question-inactive">D</div>
-            <div id="q4" class="q question-inactive">E</div>
-            <div id="q5" class="q question-inactive">F</div>
+            <div id="qA" class="q question-inactive">A</div>
+            <div id="qB" class="q question-inactive">B</div>
+            <div id="qC" class="q question-inactive">C</div>
+            <div id="qD" class="q question-inactive">D</div>
+            <div id="qE" class="q question-inactive">E</div>
+            <div id="qF" class="q question-inactive">F</div>
           </div>
         </div>
         <div id="state1.1" class="state-cont round-body" style='display:none'>
@@ -124,19 +124,19 @@
               </div>
             </div>
             <div class="clue-wrapper">
-              <div id="clue1" class="clue-inactive">
+              <div id="clue1" class="clue clue-inactive">
                   <div class="clue-face front">?</div>
                   <div class="clue-face back">TEST</div>
               </div>
-              <div id="clue2" class="clue-inactive">
+              <div id="clue2" class="clue clue-inactive">
                   <div class="clue-face front">?</div>
                   <div class="clue-face back">TEST</div>
               </div>
-              <div id="clue3" class="clue-inactive">
+              <div id="clue3" class="clue clue-inactive">
                   <div class="clue-face front">?</div>
                   <div class="clue-face back">TEST</div>
               </div>
-              <div id="clue4" class="clue-inactive">
+              <div id="clue4" class="clue clue-inactive">
                   <div class="clue-face front">?</div>
                   <div class="clue-face back">TEST</div>
               </div>
@@ -149,6 +149,17 @@
           ROUND 2
         </div>
 
+        <!-- State 5: End of Game -->
+        <div id="state5"   class="state-cont" style='display:none'>
+          <p>&nbsp;</p>
+          <div class=button-wrapper>
+            <input class="home-but btn btn-success btn-block bigText" value="Home">
+          </div>
+          <div class=button-wrapper>
+            <input class="restart-but btn btn-success btn-block bigText" value="Home">
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -156,7 +167,7 @@
       <div id="AnswerBox1.2" class="box" style='display:none'>
         <h1> Enter your Answer: </h1>
         <div class="form-inner pad-bottom">
-          <input id="answerBox" type="text"/>
+          <input id="answerBox" type="text" autocomplete="off"/>
           <input id="submitAnswer" type="button" value="Submit"/>
         </div>
       </div>
@@ -167,7 +178,7 @@
         <h1> Select all correct answers </h1>
         <div class="solution">
           <div class="solution-inner">
-            &nbsp;Lesser known Chemical elements with numbers greater than 5&nbsp;
+            &nbsp;<span class=solution-span></span>&nbsp;
           </div>
         </div>
         <div class="a-Wrapper">
@@ -183,7 +194,7 @@
         <h1> Results </h1>
         <div class="solution">
           <div class="solution-inner">
-            &nbsp;Lesser known Chemical elements with numbers greater than 5&nbsp;
+            &nbsp;<span class=solution-span></span>&nbsp;
           </div>
         </div>
         <div class="a-Wrapper">
@@ -191,7 +202,7 @@
           <div id="result_team2" class="answer"></div>
         </div>
         <div class="c-wrapper">
-          <div id="nextQ" class="roundborder"> Continue </div>
+          <div id="nextQ" class="roundborder" style='display:none'> Continue </div>
         </div>
       </div>
     </div>
@@ -213,7 +224,7 @@
 
     <script src="/__/firebase/init.js"></script>
 
-    <script src="scripts/firebase_client.js"></script>
+    <script src="scripts/firebase_client.min.js"></script>
 
     <!-- Latest compiled and minified JavaScript -->
     <script type="text/Javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>

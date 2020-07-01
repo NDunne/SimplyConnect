@@ -9,6 +9,8 @@ var hbs = require('handlebars');
 const admin = require('./firebase_admin');
 const db = admin.firestore();
 
+const deleter = require('./deleter');
+
 const cookieParser = require('cookie-parser');
 
 const app = express();
@@ -23,6 +25,7 @@ app.use(express.static(__dirname + '/public'));
 app.use(cookieParser());
 
 var game = require('./routes/game');
+var updateDB = require('./routes/updateDB');
 
 async function insertFormData(request){
   const writeResult = await
@@ -34,39 +37,6 @@ async function insertFormData(request){
   })
   .then(function() {console.log("Document write success!");})
   .catch(function(err) {console.error("Error writing document: ", error);});
-}
-
-async function deleteCollection(db, collectionPath, batchSize=500) {
-  const collectionRef = db.collection(collectionPath);
-  const query = collectionRef.orderBy('__name__').limit(batchSize);
-
-  return new Promise((resolve, reject) => {
-    deleteQueryBatch(db, query, resolve).catch(reject);
-  });
-}
-
-async function deleteQueryBatch(db, query, resolve) {
-  const snapshot = await query.get();
-
-  const batchSize = snapshot.size;
-  if (batchSize === 0) {
-    // When there are no documents left, we are done
-    resolve();
-    return;
-  }
-
-  // Delete documents in a batch
-  const batch = db.batch();
-  snapshot.docs.forEach((doc) => {
-    batch.delete(doc.ref);
-  });
-  await batch.commit();
-
-  // Recurse on the next process tick, to avoid
-  // exploding the stack.
-  process.nextTick(() => {
-    deleteQueryBatch(db, query, resolve);
-  });
 }
 
 function deleteAllUsers() {
@@ -101,7 +71,7 @@ async function clearTestData(){
  console.log("Clearing test data");
  var collections = ["Chats", "Games", "Users"];
   collections.forEach((coll) => {
-    deleteCollection(db,coll).then( function() {
+    deleter.deleteCollection(db,coll).then( function() {
       console.log("Deleted " + coll + " table");
     });
   });
@@ -118,6 +88,8 @@ app.get('/clearTest',async (req,res) => {
 });
 
 app.use('/game', game);
+
+app.use('/updateDB', updateDB);
 
 app.all('*', function(req, res) {
   res.redirect("/");

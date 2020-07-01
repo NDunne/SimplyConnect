@@ -65,6 +65,7 @@ body {
 h2 {
   text-align: center;
   margin: 0 auto;
+  color: #333;
 }
 .container {
   width: 100%;
@@ -111,7 +112,7 @@ h2 {
   margin: 0 auto;
   padding: 2vw 0;
 }
-.round-head,
+#round-head,
 .help-hover {
   display: inline-block;
   padding: 0;
@@ -431,9 +432,6 @@ h2 {
   perspective: 600px;
 }
 .clue-active {
-  transition: transform 0.5s;
-  transform-style: preserve-3d;
-  perspective: 600px;
   background: #d2c3de;
   flex: 1 1 auto;
   border: solid 1px #3a1759;
@@ -453,21 +451,6 @@ h2 {
   box-shadow: 0 0 15px #888888;
 }
 .clue-inactive {
-  flex: 1 1 auto;
-  border: solid 1px #3a1759;
-  border-radius: 5px;
-  width: 30vw;
-  margin: 8px;
-  margin-right: 0;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: larger;
-  box-shadow: none;
-  transition: transform 0.5s;
-  transform-style: preserve-3d;
-  perspective: 600px;
   background: #a397ac;
 }
 .clue-face {

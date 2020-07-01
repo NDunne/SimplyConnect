@@ -3,11 +3,17 @@ async function insertNewGame (gameCode) {
   await db.collection('Games').doc(gameCode).set({
     state: 0,     //Lobby
     turn: 0,      //Default
-    test: true,    //Debug info
-    choices: [1, 1, 1, 1, 1, 1], //initialise all available
-    selected: -1,
-    questions: [],
+    choices: {
+      A: 1,
+      B: 1,
+      C: 1,
+      D: 1,
+      E: 1,
+      F: 1
+    },
+    selected: "",
     clues: 0,
+    questions: {},
     timer: {
       running: false,
       start: 0
@@ -15,14 +21,20 @@ async function insertNewGame (gameCode) {
     answers: {
       team1: "",
       votes1: {
-        from1: 0,
-        from2: 0
+        for1: 0,
+        for2: 0,
+        total: 0
       },
       team2: "",
       votes2: {
-        from1: 0,
-        from2: 0
-      },
+        for1: 0,
+        for2: 0,
+        total: 0
+      }
+    },
+    scores: {
+      team1: 0,
+      team2: 0
     }
   })
   .then(function() {console.log("Document write success!");})

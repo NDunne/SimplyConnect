@@ -40,15 +40,6 @@ app.get(/[A-Z]{4}/,async function(req,res) {
   console.log("Game id: " + gameCode + " requested");
 
   res.render('game', { gameCode: req.url.substring(1) });
-  //
-  // getCodes().then(function(codes) {
-  //   if (codes.includes(gameCode))
-  //   {
-  //   }
-  //   else {
-  //     res.redirect("/");
-  //   }
-  // });
 });
 
 module.exports = app;

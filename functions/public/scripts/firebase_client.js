@@ -13,6 +13,8 @@ $(function() {
   var isLeader = false;
   var g_voted = false;
 
+  var g_points2score = [0, 5, 3, 2, 1];
+
   var ticker;
 
   doResize();
@@ -51,7 +53,8 @@ $(function() {
     db.collection("Games").doc(gameID).update({
       "timer.running": false,
       state: 1.2,
-      buzzer: user.uid
+      buzzer: user.uid,
+      score: g_points2score[new_doc.clues],
     });
   }
 
@@ -67,29 +70,61 @@ $(function() {
 
   console.log(last_doc);
 
-  function colourVotes()
+  function zeroDiv(x,y)
   {
-
-    var answers = new_doc.answers;
-    console.log(answers);
-
-    var t1_total = answers.votes1.from1 + answers.votes2.from1;
-    var t2_total = answers.votes1.from2 + answers.votes2.from2;
-
-    var teams_voted = !!t1_total + !!t2_total;
-    var multiplier = (teams_voted)? (100/teams_voted):0;
-
-
-    var t1_votes = multiplier * (( (t1_total) ? (answers.votes1.from1/t1_total):0) + ((t2_total) ? (answers.votes1.from2/t2_total):0));
-    var t2_votes = multiplier * (( (t1_total) ? (answers.votes2.from1/t1_total):0) + ((t2_total) ? (answers.votes2.from2/t2_total):0));
-
-    console.log(t1_votes + " " + t2_votes);
-
-    $('#result_team1').css("background","linear-gradient(90deg, #9bee9b " + t1_votes +"%, #ee9b9b 0)");
-    $('#result_team2').css("background","linear-gradient(90deg, #9bee9b " + t2_votes +"%, #ee9b9b 0)");
-
+      return ((y) ? (x/y):0);
   }
 
+  function calcVotes(answers)
+  {
+    var t1_total = answers.votes1.total;
+    var t2_total = answers.votes2.total;
+
+    var teams_voted = !!t1_total + !!t2_total;
+    var multiplier = zeroDiv(100, teams_voted);
+
+    var t1_votes = multiplier * (zeroDiv(answers.votes1.for1, t1_total) + zeroDiv(answers.votes2.for1, t2_total));
+    var t2_votes = multiplier * (zeroDiv(answers.votes1.for2, t1_total) + zeroDiv(answers.votes2.for2, t2_total));
+
+    return [t1_votes, t2_votes];
+  }
+
+  function colourVotes(answers)
+  {
+    console.log(answers);
+
+    votes = calcVotes(answers);
+
+    console.log(votes[0] + " " + votes[1]);
+
+    $('#result_team1').css("background","linear-gradient(90deg, #9bee9b " + votes[0] +"%, #ee9b9b 0)");
+    $('#result_team2').css("background","linear-gradient(90deg, #9bee9b " + votes[1] +"%, #ee9b9b 0)");
+
+    query = db.collection("Users")
+      .where("Voted", "==", false)
+      .where("Game", "==", gameID);
+
+    query.get().then(function(querySnapshot) {
+      console.log("size: " + querySnapshot.size);
+      if (!querySnapshot.size)
+      {
+        $('#nextQ').show();
+      }
+    });
+  }
+
+  function flashUpdate(elem, text)
+  {
+
+    if (elem.text() != text)
+    {
+      elem.text(text);
+      elem.css('color',"#00FF00");
+      setTimeout(function() {
+        elem.css('color',"initial");
+      }, 50);
+    }
+  }
 
   //Game document updated
   function gameUpdated(doc)
@@ -108,44 +143,66 @@ $(function() {
       if (last_doc == {}               ||
           new_doc.state != last_doc.state)
       {
-        updateState(new_doc);
+        new_doc = updateState(new_doc);
       }
 
-      if (new_doc.turn % 2)
+      if (new_doc.state)
       {
-        $('#head-t1').html("<b>Team 1</b>");
-        $('#head-t2').html("Team 2");
-      }
-      else
-      {
-        $('#head-t1').html("Team 1");
-        $('#head-t2').html("<b>Team 2</b>");
+        //Disable all question options
+        $(".q").addClass("question-inactive");
+        $(".q").removeClass("question-active");
+        $(".q").removeClass("question-selected");
+
+        until(_ => team != 0).then(function() {
+          if (team == 1)
+          {
+            $('#head-t1').html("<b>Team 1</b>");
+            $('#head-t2').html("Team 2");
+          }
+          else
+          {
+            $('#head-t1').html("Team 1");
+            $('#head-t2').html("<b>Team 2</b>");
+          }
+        });
+
+        // $('#score-t1').text(new_doc.scores.team1);
+        // $('#score-t2').text(new_doc.scores.team2);
+
+        flashUpdate($('#score-t1'), new_doc.scores.team1);
+        flashUpdate($('#score-t2'), new_doc.scores.team2);
       }
 
+      if (new_doc.state == 0)
+      {
+        last_doc = new_doc;
+      }
       //Choice of question
-      if (last_doc.state == 1)
+      if (new_doc.state == 1)
       {
+        last_doc = new_doc;
+
         //state 1 - choice of question
         until(_ => team != 0).then(function() {
-
-          //Disable all question options
-          $(".q").addClass("question-inactive");
-          $(".q").removeClass("question-selected");
 
           // It's my turn
           if ( (new_doc.turn % 2  && team == 1) ||
              (!(new_doc.turn % 2) && team == 2))
           {
-            for (var i=0; i < new_doc.choices.length; i++)
+
+            if (new_doc.questions != {}) //Questions have been selected
             {
-              if (new_doc.choices[i])
+              for (var key in new_doc.choices)
               {
-                $("#q"+i).removeClass("question-inactive")
-                $("#q"+i).addClass("question-active")
-                if (new_doc.choices[i] == 2)
+                if (new_doc.choices[key])
                 {
-                  $("#q"+i).addClass("question-selected")
-                  console.log("selected: " + i);
+                  $("#q"+key).removeClass("question-inactive")
+                  $("#q"+key).addClass("question-active")
+                  if (new_doc.choices[key] == 2)
+                  {
+                    $("#q"+key).addClass("question-selected")
+                    console.log("selected: " + key);
+                  }
                 }
               }
             }
@@ -155,29 +212,94 @@ $(function() {
           // It's not my turn
           else
           {
-            for (var i=0; i < new_doc.choices.length; i++)
+            for (var key in new_doc.choices)
             {
-              if (new_doc.choices[i] == 2)
+              if (new_doc.choices[key] == 2)
               {
-                $("#q"+i).addClass("question-selected")
+                $("#q"+key).addClass("question-selected")
+                console.log("selected: " + key);
               }
             }
 
             $("#helper-s1").text("Other team is choosing...");
           }
-
-          last_doc = doc.data();
         });
       }
-      else if (last_doc.state == 1.1 || last_doc.state == 1.2)
+      else if (new_doc.state == 1.1 || new_doc.state == 1.2)
       {
+        // $('.clue').removeClass("clue-flipped")
+
         //state 1 - choice of question
         until(_ => team != 0).then(function() {
 
+          //Actually state 1.2
+          if (new_doc.state == 1.2)
+          {
+            console.log("state 1.2");
+
+            $('#answer_team1').text(new_doc.answers.team1);
+            $('#result_team1').text(new_doc.answers.team1);
+            $('#answer_team2').text(new_doc.answers.team2);
+            $('#result_team2').text(new_doc.answers.team2);
+
+            if (new_doc.answers.team1 != "" && new_doc.answers.team2 != "")
+            {
+              $('.solution-span').text(new_doc.questions.round1[new_doc.selected].answer);
+
+              if (new_doc.clues < 4)
+              {
+                new_doc.clues = 4;
+              }
+
+              if (!g_voted)
+              {
+                $('.box').hide();
+                $('#' + $.escapeSelector("VoteBox1.2")).show();
+              }
+              else
+              {
+                console.log("recolour");
+                colourVotes(new_doc.answers);
+              }
+            }
+            else if (new_doc.answers["team" + team] != "")
+            //Submitted Guess
+            {
+              $('.box').hide();
+              $('#' + $.escapeSelector('WaitBox1.2')).show();
+            }
+            else
+            {
+              var user = firebase.auth().currentUser;
+
+              if ((((new_doc.turn % 2) && team == 2) || (!(new_doc.turn % 2) && team == 1)) && isLeader)
+              //Team Leader and not my turn
+              {
+                $('.box').hide();
+                $('#' + $.escapeSelector("AnswerBox1.2")).show();
+              }
+              else if (user.uid == new_doc.buzzer)
+              //Buzzed and is my turn
+              {
+                $('.box').hide();
+                $('#' + $.escapeSelector("AnswerBox1.2")).show();
+              }
+              else
+              {
+                $('.box').hide();
+                $('#' + $.escapeSelector('WaitBox1.2')).show();
+              }
+            }
+          }
+
+          // v Back to 1.1 v
+
           // Show visible clues
+
+          console.log("Clues: " + new_doc.clues);
           for (var i=1; i <= new_doc.clues; i++)
           {
-            $('#clue' + i).addClass("clue-flipped").find(".back").text("CLUE GOES HERE");
+            $('#clue' + i).addClass("clue-flipped").find(".back").text(new_doc.questions.round1[new_doc.selected]['clue' + i]);
           }
 
           // It's my turn
@@ -208,6 +330,7 @@ $(function() {
           {
             $('#' + $.escapeSelector("helper-s1.1")).text("Answer Correctly for a Bonus Point");
             $('#' + $.escapeSelector("helper-s1.1-msgs")).text("Discuss your bonus point answer");
+            $('#buzz-button').css("visibility","hidden");
           }
 
           console.log(last_doc.timer);
@@ -227,60 +350,7 @@ $(function() {
             }, 1000);
           }
 
-          //Listener: Chat Messages
-          db.collection("Chats").doc(gameID + "_" + team)
-            .onSnapshot(function(doc) {
-              $("#messages").html("");
-
-              messages = doc.data()
-
-              if (messages)
-              {
-
-                var h = $("#" + $.escapeSelector("chat-s1.1")).height();
-                doc.data().msgs.forEach(msg => {
-
-                  $("#messages").append(`
-                    <div class="msg">
-                      <div class="icon ` + msg.shape + ` smaller" style="background: ` + msg.col + `"></div>
-                      <div class="msgname">` + msg.sender + `: </div>
-                      <div class="msgcontent">
-                      ` + msg.content + `
-                      </div>
-                     </div>
-                  `);
-                });
-                $("#" + $.escapeSelector("chat-s1.1")).height(h);
-              }
-            })
-
-            if (last_doc.state == 1.2)
-            {
-              $('#answer_team1').text(new_doc.answers.team1);
-              $('#result_team1').text(new_doc.answers.team1);
-              $('#answer_team2').text(new_doc.answers.team2);
-              $('#result_team2').text(new_doc.answers.team2);
-
-              if (new_doc.answers.team1 != "" && new_doc.answers.team2 != "")
-              {
-                if (!g_voted)
-                {
-                  $('.box').hide();
-                  $('#' + $.escapeSelector("VoteBox1.2")).show();
-                }
-                else
-                {
-                  colourVotes();
-                }
-              }
-              else if (new_doc.answers["team" + team] != "")
-              {
-                $('#' + $.escapeSelector('WaitBox1.2')).show();
-                $('#' + $.escapeSelector("AnswerBox1.2")).hide();
-              }
-            }
-
-            last_doc = doc.data();
+            last_doc = new_doc;
         });
       }
     }
@@ -304,20 +374,53 @@ $(function() {
   //Update global and visible divs
   function updateState(new_doc)
   {
+    console.log("updateState");
     var newState = new_doc.state
 
     //Hide all state specific content
     $('.state-cont').hide();
 
     //Show constant header if game has started
-    if (newState > 0) $('#game-started').show();
+    if (newState > 0)
+    {
+      $('#game-started').show();
+      $('.clue').removeClass("clue-flipped").find(".front").text("?");
+    }
 
-    if (newState == 1.1) $('#timer').show();
+    if (newState == 1)
+    {
+      //Reset Clues:
+      $('.clue-flipped').removeClass('clue-flipped');
+      $('.clue-active').removeClass('clue-active').addClass('clue-inactive');
+      $('#timer').find('h2').text(45);
+      $('#nextQ').hide();
 
-    if (newState == 1.2)
+      g_voted = false;
+
+      //state 1 - choice of question
+      until(_ => team != 0).then(function() {
+        var user = firebase.auth().currentUser;
+
+        db.collection("Users").doc(user.uid).update({ Voted: false });
+      });
+    }
+    else if (newState == 1.1)
+    {
+      $('#timer').show();
+
+      //Disable all question options
+      $(".q").addClass("question-inactive");
+      $(".q").removeClass("question-active");
+      $(".q").removeClass("question-selected");
+
+      new_doc.clues = 0;
+    }
+    else if (newState == 1.2)
     {
       $('#state' + $.escapeSelector(1.1)).show();
       clearInterval(ticker);
+
+      $('.answer.right').removeClass('right').addClass('wrong');
 
       //state 1 - choice of question
       until(_ => team != 0).then(function() {
@@ -325,8 +428,8 @@ $(function() {
         var user = firebase.auth().currentUser;
         if (g_voted)
         {
+          colourVotes(new_doc.answers)
           $('#' + $.escapeSelector("ResultsBox1.2")).show();
-          colourVotes();
         }
         else
         {
@@ -343,12 +446,18 @@ $(function() {
         }
       });
     }
+    else if (newState == 5)
+    {
+      $('#round-head').text("Final Scores");
+      $('#round-desc').text("Thanks for Playing!");
+    }
 
     //Show div based on state
     $('#state' + $.escapeSelector(newState)).show();
 
-    //Update local state
-    last_doc.state = newState;
+    // last_doc.state = new_doc.state;
+
+    return new_doc;
   }
 
   //Listener: Game document
@@ -356,7 +465,37 @@ $(function() {
     .onSnapshot(function(doc) {
       if (!(loggedIn)) loginUser();
       gameUpdated(doc);
-    })
+    });
+
+  until(_ => team != 0).then(function() {
+
+    //Listener: Chat Messages
+    db.collection("Chats").doc(gameID + "_" + team)
+      .onSnapshot(function(doc) {
+
+        $("#messages").html("");
+
+        messages = doc.data()
+
+        if (messages)
+        {
+          var h = $("#" + $.escapeSelector("chat-s1.1")).height();
+          doc.data().msgs.forEach(msg => {
+
+            $("#messages").append(`
+              <div class="msg">
+                <div class="icon ` + msg.shape + ` smaller" style="background: ` + msg.col + `"></div>
+                <div class="msgname">` + msg.sender + `: </div>
+                <div class="msgcontent">
+                ` + msg.content + `
+                </div>
+               </div>
+            `);
+          });
+          $("#" + $.escapeSelector("chat-s1.1")).height(h);
+        }
+      });
+  });
 
   //Make changes to firestore
   function updateFirestoreUser(uid, dname, newTeam=1, ready=0, leader=false, voted=false)
@@ -419,14 +558,18 @@ $(function() {
       }
     });
 
-
     db.collection("Users").doc(uid).onSnapshot(function(doc) {
-      if (doc.data().Voted)
+      if (doc.exists && doc.data().Voted)
       {
+        console.log("Updated voted");
         g_voted = true;
         $('#' + $.escapeSelector("VoteBox1.2")).hide();
         $('#' + $.escapeSelector("ResultsBox1.2")).show();
-        colourVotes();
+
+        if (last_doc.answers)
+        {
+          colourVotes(last_doc.answers);
+        }
       }
       else
       {
@@ -478,6 +621,8 @@ $(function() {
 
   function updateTeams(querySnapshot)
   {
+    console.log("updateTeams");
+
     var t1 = [];
     var t2 = [];
 
@@ -600,27 +745,89 @@ $(function() {
     .where("Game","==",gameID)
     .onSnapshot(function(querySnapshot) {
 
-      if (last_doc.state == 0)
-      {
-        updateTeams(querySnapshot);
-      }
-      else if (last_doc.state == 1.1)
-      {
-        // console.log("Update Guesses!");
-        // updateGuesses(querySnapshot);
-      }
+      console.log("ld: " + JSON.stringify(last_doc) + " " + (jQuery.isEmptyObject('state')));
+
+      //Race condition
+      until(_ => !(jQuery.isEmptyObject(last_doc))).then(function() {
+
+        console.log("ld: " + JSON.stringify(last_doc) + " " + (jQuery.isEmptyObject('state')));
+
+        if (last_doc.state == 0)
+        {
+          updateTeams(querySnapshot);
+        }
+
+      });
     });
+
+function shuffleArray(arr)
+{
+  //Fisher-yates shuffle
+  for (let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * i)
+    const temp = arr[i]
+    arr[i] = arr[j]
+    arr[j] = temp
+  }
+  return arr;
+}
+
+async function selectQuestions()
+{
+  var qs = [];
+
+  for (var i=0; i<4; i++)
+  {
+    qs[i] = db.collection("Questions").doc("round"+(i+1)).get();
+  }
+
+  qs = await Promise.all(qs);
+
+  console.log(qs);
+
+  const letters = "ABCDEF";
+
+  qs = qs.map(function(q) { return q.data().questions.text; });
+
+  console.log(qs);
+
+  var r1 = shuffleArray(qs[0])
+            .slice(0,6)
+            .reduce(function(result, item, index, array) {
+              result[letters[index]] = item;
+              return result;
+            }, {});
+
+  var qs_obj = {
+    round1: r1,
+    round2: {},
+    round3: {},
+    round4: {}
+  };
+
+  db.collection("Games").doc(gameID).update({
+    // turn: turn,
+    // state: 1,
+    questions: qs_obj
+  });
+}
+
 
 //------Input-Listeners------//
 //----------State -1---------//
 
   //Return Home
-  $('#home-but').click(function() {
+  $('.home-but').click(function() {
     $(location).attr('href', "/");
-  })
+  });
+
+  $('.restart-but').click(function() {
+
+  });
+
   $('#top').click(function() {
     $(location).attr('href', "/");
-  })
+  });
 
 //------------end------------//
 //----------State 0----------//
@@ -670,13 +877,15 @@ $(function() {
 
     var turn = (Math.floor(Math.random() * 2))
 
-    if (turn) alert("TEAM 1 goes first");
-    else alert("TEAM 2 goes first");
+    // if (turn) alert("TEAM 1 goes first");
+    // else alert("TEAM 2 goes first");
 
     db.collection("Games").doc(gameID).update({
       turn: turn,
-      state: 1
+      state: 1,
     });
+
+    selectQuestions();
   });
 
   $('#makeLeader').click(function() {
@@ -704,11 +913,14 @@ $(function() {
     $('.question-selected').removeClass("question-selected");
     $(this).addClass("question-selected");
 
-    var findIdx = $.inArray(2,last_doc.choices)
+    for (var key in last_doc.choices) {
+       if (last_doc.choices[key] == 2 )
+       {
+         last_doc.choices[key] = 1;
+       }
+    }
 
-    if (findIdx >= 0) last_doc.choices[findIdx] = 1;
-
-    var newIdx = parseInt($(this).attr("id").substring(1));
+    var newIdx = $(this).attr("id").substring(1);
 
     last_doc.choices[newIdx] = 2;
 
@@ -719,9 +931,10 @@ $(function() {
   });
 
   $(document).on('click', '.question-selected', function() {
-    var qnumber = parseInt($(this).attr("id").substring(1));
+    var qletter = $(this).attr("id").substring(1);
     db.collection("Games").doc(gameID).update({
-      selected: qnumber,
+      selected: qletter,
+      ['choices.' + qletter]: 0,
       state: 1.1
     });
   });
@@ -731,10 +944,11 @@ $(function() {
 
   $(document).on('click', '.clue-active', function() {
     $(this).removeClass('clue-active').addClass('clue-inactive');
-    db.collection("Games").doc(gameID)
-      .update({
-        choices: last_doc.choices
-      });
+
+    // db.collection("Games").doc(gameID)
+    //   .update({
+    //     choices: last_doc.choices
+    //   });
 
     db.collection("Games").doc(gameID).update({
       clues: firebase.firestore.FieldValue.increment(1)
@@ -762,6 +976,7 @@ $(function() {
     db.collection("Games").doc(gameID).update({
       ['answers.team' + team]: $('#answerBox').val()
     });
+    $('#answerBox').val("");
   });
 
   $(document).on('click', '.answer.wrong, .answer.right', function() {
@@ -769,27 +984,103 @@ $(function() {
   });
 
   $('#confirmVote').click(function() {
-    var btch = db.batch();
+    var b = db.batch();
 
     var gameRef = db.collection("Games").doc(gameID);
     $('.answer.right').each(function(index) {
-      btch.update(gameRef, {["answers.votes" + ($(this).attr('id').slice(-1)) + ".from" + team]:firebase.firestore.FieldValue.increment(1)})
+      b.update(gameRef, {["answers.votes" + team + ".for" + ($(this).attr('id').slice(-1))]:firebase.firestore.FieldValue.increment(1)})
       console.log();
     });
 
-    var user = firebase.auth().currentUser;
-    btch.update(db.collection("Users").doc(user.uid), {Voted: true});
+    b.update(gameRef, {["answers.votes" + team + ".total"]:firebase.firestore.FieldValue.increment(1)})
 
-    btch.commit();
+    var user = firebase.auth().currentUser;
+    b.update(db.collection("Users").doc(user.uid), {Voted: true});
+
+    b.commit();
   });
 
   $('#skipVote').click(function() {
-    var btch = db.batch();
+    var b = db.batch();
 
     var user = firebase.auth().currentUser;
-    btch.update(db.collection("Users").doc(user.uid), {Voted: true});
 
-    btch.commit();
+    var gameRef = db.collection("Games").doc(gameID);
+    b.update(gameRef, {["answers.votes" + team + ".total"]:firebase.firestore.FieldValue.increment(0)})
+
+    b.update(db.collection("Users").doc(user.uid), {Voted: true});
+
+    b.commit();
+  });
+
+  $('#nextQ').click(function() {
+
+    var votes = calcVotes(last_doc.answers);
+
+    console.log(votes);
+
+    // Create a reference to the SF doc.
+    var gameDocRef = db.collection("Games").doc(gameID);
+
+    gameDocRef.update({
+      state: 1,
+      turn: firebase.firestore.FieldValue.increment(1),
+      timer: {
+        running: false,
+        start: 0
+      },
+      answers: {
+        team1: "",
+        votes1: {
+          for1: 0,
+          for2: 0,
+          total: 0
+        },
+        team2: "",
+        votes2: {
+          for1: 0,
+          for2: 0,
+          total: 0
+        },
+      },
+      selected: "",
+    });
+
+    return db.runTransaction(function(transaction) {
+      // This code may get re-run multiple times if there are conflicts.
+      return transaction.get(gameDocRef).then(function(gameDoc) {
+
+        var choices_map = gameDoc.data().choices;
+        choices_map[gameDoc.data().selected] = 0;
+
+        var sum = Object.values(choices_map).reduce((t, n) => t + n);
+        console.log("SUM" + sum);
+        if (!sum)
+        {
+          //END GAME TODO
+          transaction.update(gameDocRef, {state: 5});
+        }
+
+        console.log("Clues: " + gameDoc.data().clues + " Score: " + gameDoc.data().score);
+
+        var score1diff = (votes[0] >= 50)? ((!(gameDoc.data().turn % 2))? gameDoc.data().score : 1 ): 0;
+        var score2diff = (votes[1] >= 50)? (  (gameDoc.data().turn % 2)? gameDoc.data().score : 1 ): 0;
+
+        console.log("scores: " + score1diff + " " + score2diff);
+
+        transaction.update(gameDocRef, {
+          clues: 0,
+          scores: {
+            team1: gameDoc.data().scores.team1 + score1diff,
+            team2: gameDoc.data().scores.team2 + score2diff,
+          }
+        });
+      });
+    }).then(function() {
+        console.log("Transaction successfully committed!");
+    }).catch(function(error) {
+        console.log("Transaction failed: ", error);
+    });
   });
 
   //------------end------------//
