@@ -16,7 +16,7 @@
     "cheerio": "^1.0.0-rc.3",
     "consolidate": "^0.15.1",
     "crypto": "^1.0.1",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "firebase": "^7.15.0",
     "firebase-admin": "^8.10.0",
     "firebase-auth": "^0.1.2",
